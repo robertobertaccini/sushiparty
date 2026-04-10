@@ -1,0 +1,93 @@
+import { useState } from 'react';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
+import { auth, db } from '../firebase/config';
+import type { UserRole } from '../types';
+
+export default function Login() {
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState<UserRole>('client');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    try {
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email, password);
+      } else {
+        const { user } = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, 'users', user.uid), {
+          uid: user.uid,
+          email,
+          role,
+          displayName: email.split('@')[0],
+        });
+      }
+      navigate('/');
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen px-4">
+      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-center mb-6">{isLogin ? 'Login' : 'Sign Up'}</h2>
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full mt-1 p-2 border border-gray-300 rounded focus:ring-red-500 focus:border-red-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full mt-1 p-2 border border-gray-300 rounded focus:ring-red-500 focus:border-red-500"
+              required
+            />
+          </div>
+          {!isLogin && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Role</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value as UserRole)}
+                className="w-full mt-1 p-2 border border-gray-300 rounded"
+              >
+                <option value="client">Client (Organizer)</option>
+                <option value="worker">Worker (Sushiman)</option>
+                <option value="participant">Participant</option>
+              </select>
+            </div>
+          )}
+          <button
+            type="submit"
+            className="w-full py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700 transition"
+          >
+            {isLogin ? 'Login' : 'Sign Up'}
+          </button>
+        </form>
+        <button
+          onClick={() => setIsLogin(!isLogin)}
+          className="w-full mt-4 text-sm text-gray-600 hover:text-red-600"
+        >
+          {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Login'}
+        </button>
+      </div>
+    </div>
+  );
+}
