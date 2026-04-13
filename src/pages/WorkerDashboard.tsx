@@ -1,63 +1,77 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, doc, updateDoc, addDoc, orderBy, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase/config';
 import { useAuth } from '../hooks/useAuth';
+import { api } from '../lib/api';
 
 export default function WorkerDashboard() {
-  const { user, profile } = useAuth();
+  const { user, profile, login } = useAuth();
   const [events, setEvents] = useState<any[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [availabilityDate, setAvailabilityDate] = useState('');
 
-  useEffect(() => {
+  const fetchEvents = async () => {
     if (!user || profile?.role !== 'worker') return;
+    try {
+      const data = await api.get(`/events?workerId=${user.uid}`);
+      setEvents(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-    const q = query(collection(db, 'events'), where('workerId', '==', user.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setEvents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
+  const fetchMessages = async (eventId: string) => {
+    try {
+      const data = await api.get(`/messages/${eventId}`);
+      setMessages(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-    return unsubscribe;
+  useEffect(() => {
+    fetchEvents();
   }, [user, profile]);
 
   useEffect(() => {
     if (!selectedEvent) return;
-
-    const q = query(
-      collection(db, `events/${selectedEvent.id}/chat`),
-      orderBy('createdAt', 'asc')
-    );
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMessages(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-
-    return unsubscribe;
+    fetchMessages(selectedEvent.eventId);
   }, [selectedEvent]);
 
   const addAvailability = async () => {
+    // Note: in a real app this would call an API to update the user
+    // For this simple demo, we will mock it
     if (!user || !availabilityDate) return;
-    const userRef = doc(db, 'users', user.uid);
     const newAvailability = [...(profile?.availability || []), availabilityDate];
-    await updateDoc(userRef, { availability: newAvailability });
+    const updatedProfile = { ...profile, availability: newAvailability };
+    login(updatedProfile); // updates local context
     setAvailabilityDate('');
   };
 
   const markCompleted = async (eventId: string) => {
-    await updateDoc(doc(db, 'events', eventId), { status: 'completed' });
+    try {
+      await api.put(`/events/${eventId}`, { status: 'completed' });
+      fetchEvents();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedEvent || !user) return;
-    await addDoc(collection(db, `events/${selectedEvent.id}/chat`), {
-      senderId: user.uid,
-      senderName: profile?.displayName || 'Worker',
-      text: newMessage,
-      createdAt: serverTimestamp(),
-    });
-    setNewMessage('');
+    try {
+      await api.post('/messages', {
+        eventId: selectedEvent.eventId,
+        senderId: user.uid,
+        senderName: profile?.displayName || 'Worker',
+        text: newMessage,
+      });
+      setNewMessage('');
+      fetchMessages(selectedEvent.eventId);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -85,9 +99,9 @@ export default function WorkerDashboard() {
           <h3 className="text-xl font-bold">Your Events</h3>
           {events.map(event => (
             <div
-              key={event.id}
+              key={event.eventId}
               onClick={() => setSelectedEvent(event)}
-              className={`p-4 border rounded-lg cursor-pointer transition ${selectedEvent?.id === event.id ? 'border-red-600 ring-1 ring-red-600' : 'bg-white hover:border-gray-400'}`}
+              className={`p-4 border rounded-lg cursor-pointer transition ${selectedEvent?.eventId === event.eventId ? 'border-red-600 ring-1 ring-red-600' : 'bg-white hover:border-gray-400'}`}
             >
               <div className="flex justify-between items-start">
                 <div>
@@ -100,7 +114,7 @@ export default function WorkerDashboard() {
               </div>
               {event.status !== 'completed' && (
                 <button
-                  onClick={(e) => { e.stopPropagation(); markCompleted(event.id); }}
+                  onClick={(e) => { e.stopPropagation(); markCompleted(event.eventId); }}
                   className="mt-2 text-xs text-red-600 font-medium hover:underline"
                 >
                   Mark as Completed
@@ -118,7 +132,7 @@ export default function WorkerDashboard() {
               </div>
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map(msg => (
-                  <div key={msg.id} className={`flex flex-col ${msg.senderId === user?.uid ? 'items-end' : 'items-start'}`}>
+                  <div key={msg.messageId} className={`flex flex-col ${msg.senderId === user?.uid ? 'items-end' : 'items-start'}`}>
                     <span className="text-xs text-gray-500">{msg.senderName}</span>
                     <p className={`p-2 rounded-lg max-w-[80%] ${msg.senderId === user?.uid ? 'bg-red-600 text-white' : 'bg-gray-100'}`}>
                       {msg.text}

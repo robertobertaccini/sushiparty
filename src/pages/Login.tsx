@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../firebase/config';
+import { useAuth } from '../hooks/useAuth';
+import { api } from '../lib/api';
 import type { UserRole } from '../types';
 
 export default function Login() {
@@ -12,21 +11,18 @@ export default function Login() {
   const [role, setRole] = useState<UserRole>('client');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     try {
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
+        const res = await api.post('/auth/login', { email, password });
+        login(res.user);
       } else {
-        const { user } = await createUserWithEmailAndPassword(auth, email, password);
-        await setDoc(doc(db, 'users', user.uid), {
-          uid: user.uid,
-          email,
-          role,
-          displayName: email.split('@')[0],
-        });
+        const res = await api.post('/auth/register', { email, password, role });
+        login(res.user);
       }
       navigate('/');
     } catch (err: any) {

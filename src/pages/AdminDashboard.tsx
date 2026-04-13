@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { collection, query, onSnapshot, doc, updateDoc, getDocs, where } from 'firebase/firestore';
-import { db } from '../firebase/config';
 import { useAuth } from '../hooks/useAuth';
+import { api } from '../lib/api';
 import type { UserProfile, AdditionalService } from '../types';
 
 export default function AdminDashboard() {
@@ -14,26 +13,49 @@ export default function AdminDashboard() {
     { id: '3', name: 'Extra Wasabi/Ginger', price: 5 },
   ]);
 
+  const fetchEvents = async () => {
+    if (profile?.role !== 'admin') return;
+    try {
+      const data = await api.get('/events');
+      // Fix parsing for additionalServices if we needed to
+      const parsedData = data.map((e: any) => ({
+        ...e,
+        additionalServices: e.additionalServices ? (typeof e.additionalServices === 'string' ? JSON.parse(e.additionalServices) : e.additionalServices) : []
+      }));
+      setEvents(parsedData);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     if (profile?.role !== 'admin') return;
 
-    const qEvents = query(collection(db, 'events'));
-    const unsubscribeEvents = onSnapshot(qEvents, (snapshot) => {
-      setEvents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
+    fetchEvents();
 
     const fetchWorkers = async () => {
-      const qWorkers = query(collection(db, 'users'), where('role', '==', 'worker'));
-      const snapshot = await getDocs(qWorkers);
-      setWorkers(snapshot.docs.map(doc => doc.data() as UserProfile));
+      try {
+         const data = await api.get('/users?role=worker');
+         setWorkers(data);
+      } catch (e) {
+         console.error(e);
+      }
     };
 
     fetchWorkers();
-    return unsubscribeEvents;
   }, [profile]);
 
   const updateEvent = async (eventId: string, updates: any) => {
-    await updateDoc(doc(db, 'events', eventId), updates);
+    try {
+      // In SQLite we should stringify the additional services if that's what's being updated
+      if (updates.additionalServices) {
+         updates.additionalServices = JSON.stringify(updates.additionalServices);
+      }
+      await api.put(`/events/${eventId}`, updates);
+      fetchEvents();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const calculateTotal = (event: any) => {
@@ -65,7 +87,7 @@ export default function AdminDashboard() {
           </thead>
           <tbody className="divide-y">
             {events.map(event => (
-              <tr key={event.id}>
+              <tr key={event.eventId}>
                 <td className="p-4">
                   <div className="font-medium">{event.city}</div>
                   <div className="text-sm text-gray-500">{event.date}</div>
@@ -73,7 +95,7 @@ export default function AdminDashboard() {
                 <td className="p-4">
                   <select
                     value={event.workerId}
-                    onChange={(e) => updateEvent(event.id, { workerId: e.target.value })}
+                    onChange={(e) => updateEvent(event.eventId, { workerId: e.target.value })}
                     className="border rounded p-1 text-sm"
                   >
                     {workers.map(w => (
@@ -88,7 +110,7 @@ export default function AdminDashboard() {
                     onChange={(e) => {
                       const count = parseInt(e.target.value);
                       const total = calculateTotal({ ...event, participantCount: count });
-                      updateEvent(event.id, { participantCount: count, totalAmount: total });
+                      updateEvent(event.eventId, { participantCount: count, totalAmount: total });
                     }}
                     className="border rounded p-1 w-16"
                   />
@@ -105,7 +127,7 @@ export default function AdminDashboard() {
                               ? [...event.additionalServices, service.id]
                               : event.additionalServices.filter((id: string) => id !== service.id);
                             const total = calculateTotal({ ...event, additionalServices: newServices });
-                            updateEvent(event.id, { additionalServices: newServices, totalAmount: total });
+                            updateEvent(event.eventId, { additionalServices: newServices, totalAmount: total });
                           }}
                           className="mr-1"
                         />
@@ -119,7 +141,7 @@ export default function AdminDashboard() {
                 </td>
                 <td className="p-4">
                   <button
-                    onClick={() => updateEvent(event.id, { status: 'cancelled' })}
+                    onClick={() => updateEvent(event.eventId, { status: 'cancelled' })}
                     className="text-red-600 text-sm hover:underline"
                   >
                     Cancel

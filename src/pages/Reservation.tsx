@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase/config';
 import { useAuth } from '../hooks/useAuth';
+import { api } from '../lib/api';
 import type { UserProfile } from '../types';
 
 export default function Reservation() {
@@ -19,21 +18,13 @@ export default function Reservation() {
   const searchWorkers = async () => {
     setLoading(true);
     try {
-      const q = query(
-        collection(db, 'users'),
-        where('role', '==', 'worker'),
-        where('city', '==', city)
-      );
-      const querySnapshot = await getDocs(q);
-      const workerList: UserProfile[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as UserProfile;
-        // Basic availability check: worker must have the date in their availability array
-        if (data.availability?.includes(date)) {
-          workerList.push(data);
-        }
+      const workerList = await api.get(`/users?role=worker&city=${encodeURIComponent(city)}`);
+
+      const availableWorkers = workerList.filter((data: UserProfile) => {
+        return data.availability?.includes(date);
       });
-      setWorkers(workerList);
+
+      setWorkers(availableWorkers);
       setStep(2);
     } catch (error) {
       console.error('Error searching workers:', error);
@@ -55,9 +46,8 @@ export default function Reservation() {
         totalAmount: participants * 50, // Dummy price calculation
         paidAmount: 0,
         additionalServices: [],
-        createdAt: serverTimestamp(),
       };
-      await addDoc(collection(db, 'events'), eventData);
+      await api.post('/events', eventData);
       setStep(4); // Confirmation/Payment step
     } catch (error) {
       console.error('Error creating event:', error);
