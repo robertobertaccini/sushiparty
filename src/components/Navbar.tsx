@@ -1,16 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { auth } from '../firebase/config';
 import { LogOut, Home, Calendar, Shield, User, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navbar() {
-  const { user, profile } = useAuth();
+  const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
-    await auth.signOut();
+    logout();
     navigate('/login');
   };
 
