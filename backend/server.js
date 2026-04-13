@@ -203,6 +203,33 @@ app.get('/api/submissions/:eventId', (req, res) => {
   });
 });
 
+// ADMIN DB BROWSER ROUTE
+app.get('/api/admin/db/:table', (req, res) => {
+  const allowedTables = ['users', 'events', 'messages', 'submissions'];
+  const table = req.params.table;
+
+  if (!allowedTables.includes(table)) {
+    return res.status(400).json({ error: 'Invalid table name' });
+  }
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+
+  db.get(`SELECT COUNT(*) as count FROM ${table}`, [], (err, countRow) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    db.all(`SELECT * FROM ${table} LIMIT ? OFFSET ?`, [limit, offset], (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      res.json({
+        total: countRow.count,
+        rows: rows
+      });
+    });
+  });
+});
+
 // UPLOAD ROUTE
 app.post('/api/upload', upload.single('photo'), (req, res) => {
   if (!req.file) {

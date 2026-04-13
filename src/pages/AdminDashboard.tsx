@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
 import type { UserProfile, AdditionalService } from '../types';
@@ -71,7 +72,15 @@ export default function AdminDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h2 className="text-3xl font-bold mb-8">Admin Dashboard</h2>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold">Admin Dashboard</h2>
+        <Link
+          to="/admin/db"
+          className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
+        >
+          Database Browser
+        </Link>
+      </div>
 
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="w-full text-left">

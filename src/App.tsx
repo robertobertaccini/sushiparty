@@ -5,6 +5,7 @@ import Reservation from './pages/Reservation';
 import EventDetails from './pages/EventDetails';
 import WorkerDashboard from './pages/WorkerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminDbBrowser from './pages/AdminDbBrowser';
 import Navbar from './components/Navbar';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -45,6 +46,11 @@ function App() {
             <Route path="/admin" element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/db" element={
+              <ProtectedRoute>
+                <AdminDbBrowser />
               </ProtectedRoute>
             } />
           </Routes>
