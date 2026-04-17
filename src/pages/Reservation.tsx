@@ -13,7 +13,7 @@ export default function Reservation() {
   const [participants, setParticipants] = useState(2);
   const [loading, setLoading] = useState(false);
 
-  const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Miami'];
+  const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Miami', 'Milano'];
 
   const searchWorkers = async () => {
     setLoading(true);

@@ -9,9 +9,20 @@ export default function AdminDbBrowser() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState<any>({});
+
   const limit = 10;
 
   const tables = ['users', 'events', 'messages', 'submissions'];
+  
+  const pks: Record<string, string> = {
+    users: 'uid',
+    events: 'eventId',
+    messages: 'messageId',
+    submissions: 'photoId'
+  };
 
   const fetchData = async () => {
     if (profile?.role !== 'admin') return;
@@ -31,16 +42,48 @@ export default function AdminDbBrowser() {
 
   useEffect(() => {
     fetchData();
+    setEditingId(null);
   }, [table, page, profile]);
 
   if (profile?.role !== 'admin') {
     return <div className="p-10 text-center text-red-500">Access Denied</div>;
   }
 
+  const handleEditClick = (row: any) => {
+    const pk = pks[table];
+    setEditingId(row[pk]);
+    setEditFormData({ ...row });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditFormData({});
+  };
+
+  const handleSaveClick = async () => {
+    try {
+      const pk = pks[table];
+      const id = editFormData[pk];
+      await api.put(`/admin/db/${table}/${id}`, editFormData);
+      setEditingId(null);
+      fetchData();
+    } catch (e) {
+      console.error("Failed to update record", e);
+      alert("Failed to update record.");
+    }
+  };
+
+  const handleInputChange = (key: string, value: string) => {
+    setEditFormData({
+      ...editFormData,
+      [key]: value
+    });
+  };
+
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-7xl mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold">Database Browser</h2>
         <div>
@@ -52,7 +95,7 @@ export default function AdminDbBrowser() {
               setTable(e.target.value);
               setPage(1); // Reset to page 1 on table change
             }}
-            className="border rounded p-2"
+            className="border rounded p-2 bg-white"
           >
             {tables.map(t => (
               <option key={t} value={t}>{t}</option>
@@ -73,18 +116,50 @@ export default function AdminDbBrowser() {
                 {Object.keys(data[0]).map(key => (
                   <th key={key} className="p-4 font-semibold text-sm">{key}</th>
                 ))}
+                <th className="p-4 font-semibold text-sm">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
-              {data.map((row, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  {Object.values(row).map((val, idx) => (
-                    <td key={idx} className="p-4 text-sm whitespace-nowrap max-w-[200px] truncate">
-                      {typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val)}
+              {data.map((row, index) => {
+                const pk = pks[table];
+                const isEditing = editingId === row[pk];
+
+                return (
+                  <tr key={index} className="hover:bg-gray-50">
+                    {Object.keys(row).map((key) => {
+                      const val = isEditing ? editFormData[key] : row[key];
+                      const isPk = key === pk;
+                      
+                      return (
+                        <td key={key} className="p-4 text-sm max-w-[200px]">
+                          {isEditing && !isPk ? (
+                            <input 
+                              type="text" 
+                              className="w-full border rounded px-2 py-1"
+                              value={val === null ? '' : typeof val === 'object' ? JSON.stringify(val) : String(val)}
+                              onChange={(e) => handleInputChange(key, e.target.value)}
+                            />
+                          ) : (
+                            <div className="truncate" title={typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val)}>
+                              {typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val)}
+                            </div>
+                          )}
+                        </td>
+                      );
+                    })}
+                    <td className="p-4 text-sm font-medium">
+                      {isEditing ? (
+                        <div className="flex space-x-2">
+                          <button onClick={handleSaveClick} className="text-green-600 hover:text-green-800">Save</button>
+                          <button onClick={handleCancelEdit} className="text-red-600 hover:text-red-800">Cancel</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => handleEditClick(row)} className="text-indigo-600 hover:text-indigo-800">Edit</button>
+                      )}
                     </td>
-                  ))}
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

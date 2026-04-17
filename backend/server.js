@@ -255,6 +255,71 @@ app.post('/api/upload', upload.single('photo'), (req, res) => {
   }
 });
 
+
+app.put('/api/admin/db/:table/:id', (req, res) => {
+  const allowedTables = ['users', 'events', 'messages', 'submissions'];
+  const table = req.params.table;
+  const id = req.params.id;
+  
+  if (!allowedTables.includes(table)) {
+    return res.status(400).json({ error: 'Invalid table name' });
+  }
+  
+  const pks = {
+    users: 'uid',
+    events: 'eventId',
+    messages: 'messageId',
+    submissions: 'photoId'
+  };
+  
+  const pk = pks[table];
+  
+  const updates = [];
+  const values = [];
+  for (const [key, value] of Object.entries(req.body)) {
+    if (key !== pk) {
+      updates.push(`${key} = ?`);
+      values.push(value);
+    }
+  }
+  
+  if (updates.length === 0) {
+    return res.json({ success: true });
+  }
+  
+  values.push(id);
+  const sql = `UPDATE ${table} SET ${updates.join(', ')} WHERE ${pk} = ?`;
+  
+  db.run(sql, values, function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, changes: this.changes });
+  });
+});
+
+
+app.put('/api/users/:uid', (req, res) => {
+  const uid = req.params.uid;
+  const updates = [];
+  const values = [];
+  
+  for (const [key, value] of Object.entries(req.body)) {
+    updates.push(`${key} = ?`);
+    values.push(typeof value === 'object' ? JSON.stringify(value) : value);
+  }
+  
+  if (updates.length === 0) {
+    return res.json({ success: true });
+  }
+  
+  values.push(uid);
+  const sql = `UPDATE users SET ${updates.join(', ')} WHERE uid = ?`;
+  
+  db.run(sql, values, function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, changes: this.changes });
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
 });
