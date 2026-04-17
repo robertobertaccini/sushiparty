@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
+import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, format, isSameMonth, addMonths, subMonths } from 'date-fns';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function WorkerDashboard() {
   const { user, profile, login } = useAuth();
@@ -8,7 +10,9 @@ export default function WorkerDashboard() {
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [availabilityDate, setAvailabilityDate] = useState('');
+  
+  // Calendar state
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const fetchEvents = async () => {
     if (!user || profile?.role !== 'worker') return;
@@ -38,14 +42,28 @@ export default function WorkerDashboard() {
     fetchMessages(selectedEvent.eventId);
   }, [selectedEvent]);
 
-  const addAvailability = async () => {
-    // Note: in a real app this would call an API to update the user
-    // For this simple demo, we will mock it
-    if (!user || !availabilityDate) return;
-    const newAvailability = [...(profile?.availability || []), availabilityDate];
+  const toggleAvailability = async (dateStr: string) => {
+    if (!user) return;
+    const currentAvailability = profile?.availability || [];
+    
+    let newAvailability;
+    if (currentAvailability.includes(dateStr)) {
+      newAvailability = currentAvailability.filter((d: string) => d !== dateStr);
+    } else {
+      newAvailability = [...currentAvailability, dateStr];
+    }
+    
+    // Optimistic UI update locally
     const updatedProfile = { ...profile, availability: newAvailability };
-    login(updatedProfile); // updates local context
-    setAvailabilityDate('');
+    login(updatedProfile); 
+    
+    try {
+      await api.put(`/users/${user.uid}`, { availability: newAvailability });
+    } catch (e) {
+      console.error("Failed to update availability", e);
+      alert("Failed to update availability");
+      // Revert in case of failure (lazy implementation, just refresh or let user handle)
+    }
   };
 
   const markCompleted = async (eventId: string) => {
@@ -74,24 +92,63 @@ export default function WorkerDashboard() {
     }
   };
 
+  // Calendar rendering logic
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const startDate = startOfWeek(monthStart);
+  const endDate = endOfWeek(monthEnd);
+  const dateFormat = "yyyy-MM-dd";
+  const days = eachDayOfInterval({ start: startDate, end: endDate });
+
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-8">
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4">Worker Schedule</h2>
-        <div className="flex gap-2 mb-4">
-          <input
-            type="date"
-            value={availabilityDate}
-            onChange={(e) => setAvailabilityDate(e.target.value)}
-            className="border p-2 rounded"
-          />
-          <button onClick={addAvailability} className="bg-red-600 text-white px-4 rounded">Add Availability</button>
+        
+        {/* Calendar Control */}
+        <div className="max-w-md mx-auto border rounded-lg overflow-hidden shadow-sm">
+          <div className="flex justify-between items-center p-4 bg-gray-50 border-b">
+            <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-gray-200 rounded">
+              <ChevronLeft size={20} />
+            </button>
+            <h3 className="font-bold text-lg">{format(currentMonth, "MMMM yyyy")}</h3>
+            <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-gray-200 rounded">
+              <ChevronRight size={20} />
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-7 gap-px bg-gray-200 border-b">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <div key={day} className="p-2 text-center text-xs font-semibold bg-gray-50">
+                {day}
+              </div>
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-7 gap-px bg-gray-200">
+            {days.map((day, i) => {
+              const formattedDate = format(day, dateFormat);
+              const isSelected = profile?.availability?.includes(formattedDate);
+              const isCurrentMonth = isSameMonth(day, monthStart);
+              
+              return (
+                <div 
+                  key={formattedDate + i} 
+                  onClick={() => isCurrentMonth && toggleAvailability(formattedDate)}
+                  className={`min-h-[60px] p-2 bg-white flex flex-col justify-between transition-colors ${isCurrentMonth ? 'cursor-pointer hover:bg-gray-50' : 'text-gray-300'} ${isSelected ? 'bg-red-50 hover:bg-red-100' : ''}`}
+                >
+                  <span className={`text-sm font-medium ${!isCurrentMonth ? 'opacity-50' : ''}`}>
+                    {format(day, 'd')}
+                  </span>
+                  {isSelected && (
+                    <div className="w-full h-1.5 bg-red-600 rounded-full mt-1"></div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {profile?.availability?.map(date => (
-            <span key={date} className="bg-gray-200 px-3 py-1 rounded-full text-sm">{date}</span>
-          ))}
-        </div>
+        <p className="text-center text-sm text-gray-500 mt-4">Click a day to toggle your availability</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -65,7 +65,6 @@ export default function Login() {
                 className="w-full mt-1 p-2 border border-gray-300 rounded"
               >
                 <option value="client">Client (Organizer)</option>
-                <option value="worker">Worker (Sushiman)</option>
                 <option value="participant">Participant</option>
               </select>
             </div>
