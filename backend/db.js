@@ -27,7 +27,8 @@ export function initDb() {
           displayName TEXT,
           photoURL TEXT,
           city TEXT,
-          availability TEXT
+          availability TEXT,
+          defaultCompensation REAL
         )
       `);
 
@@ -70,7 +71,25 @@ export function initDb() {
         )
       `, (err) => {
         if (err) reject(err);
-        else resolve(true);
+        else {
+          // Ensure the users table has the compensation column if this is an older DB
+          db.all(`PRAGMA table_info(users)`, (err2, columns) => {
+            if (err2) {
+              console.error('Failed to read users schema:', err2.message);
+              return resolve(true);
+            }
+
+            const hasComp = Array.isArray(columns) && columns.some((col) => col.name === 'defaultCompensation');
+            if (!hasComp) {
+              db.run('ALTER TABLE users ADD COLUMN defaultCompensation REAL', (alterErr) => {
+                if (alterErr) console.error('Failed to add defaultCompensation column:', alterErr.message);
+                resolve(true);
+              });
+            } else {
+              resolve(true);
+            }
+          });
+        }
       });
     });
   });

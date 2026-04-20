@@ -43,7 +43,7 @@ console.log('Database initialized');
 
 // AUTH ROUTES
 app.post('/api/auth/register', (req, res) => {
-  const { email, password, role, displayName, city } = req.body;
+  const { email, password, role, displayName, city, defaultCompensation } = req.body;
   const uid = generateId();
 
   // Check if user exists
@@ -53,11 +53,11 @@ app.post('/api/auth/register', (req, res) => {
     }
 
     db.run(
-      'INSERT INTO users (uid, email, password, role, displayName, city, availability) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [uid, email, password, role || 'client', displayName || email.split('@')[0], city || null, JSON.stringify([])],
+      'INSERT INTO users (uid, email, password, role, displayName, city, availability, defaultCompensation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [uid, email, password, role || 'client', displayName || email.split('@')[0], city || null, JSON.stringify([]), defaultCompensation || null],
       (err) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ user: { uid, email, role: role || 'client', displayName, city } });
+        res.json({ user: { uid, email, role: role || 'client', displayName, city, defaultCompensation: defaultCompensation || null } });
       }
     );
   });
@@ -80,7 +80,7 @@ app.post('/api/auth/login', (req, res) => {
 // USERS ROUTE
 app.get('/api/users', (req, res) => {
   const { role, city } = req.query;
-  let query = 'SELECT uid, email, role, displayName, city, availability, photoURL FROM users WHERE 1=1';
+  let query = 'SELECT uid, email, role, displayName, city, availability, photoURL, defaultCompensation FROM users WHERE 1=1';
   let params = [];
 
   if (role) {
@@ -160,6 +160,14 @@ app.put('/api/events/:id', (req, res) => {
       res.json({ success: true });
     }
   );
+});
+
+app.delete('/api/events/:id', (req, res) => {
+  db.run('DELETE FROM events WHERE eventId = ?', [req.params.id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: 'Event not found' });
+    res.json({ success: true });
+  });
 });
 
 // MESSAGES ROUTES

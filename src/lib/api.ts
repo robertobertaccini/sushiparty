@@ -26,6 +26,14 @@ export const api = {
     if (!res.ok) throw new Error(result.error || `Failed to PUT ${endpoint}`);
     return result;
   },
+  delete: async (endpoint: string) => {
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      method: 'DELETE'
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || `Failed to DELETE ${endpoint}`);
+    return result;
+  },
   upload: async (endpoint: string, formData: FormData) => {
     const res = await fetch(`${API_URL}${endpoint}`, {
       method: 'POST',

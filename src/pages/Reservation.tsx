@@ -1,35 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
-import type { UserProfile } from '../types';
+import WorkerCalendar from '../components/WorkerCalendar';
+import { ADDITIONAL_SERVICES } from '../lib/constants';
+import type { UserProfile, SushiEvent } from '../types';
 
 export default function Reservation() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [step, setStep] = useState(1);
-  const [city, setCity] = useState('');
+  const city = profile?.city || '';
   const [date, setDate] = useState('');
   const [workers, setWorkers] = useState<UserProfile[]>([]);
   const [selectedWorker, setSelectedWorker] = useState<UserProfile | null>(null);
-  const [participants, setParticipants] = useState(2);
+  const [participants, setParticipants] = useState(6);
+  const [additionalServices, setAdditionalServices] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [clientEvents, setClientEvents] = useState<SushiEvent[]>([]);
 
-  const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Miami', 'Milano'];
+  useEffect(() => {
+    if (!user) return;
+    const fetchReservations = async () => {
+      try {
+        const events = await api.get(`/events?clientId=${user.uid}`) as SushiEvent[];
+        const activeEvents = (events || []).filter(event => event.status !== 'cancelled');
+        setClientEvents(activeEvents);
+      } catch (err) {
+        console.error('Error fetching reservations:', err);
+      }
+    };
+    fetchReservations();
+  }, [user]);
 
-  const searchWorkers = async () => {
-    setLoading(true);
-    try {
-      const workerList = await api.get(`/users?role=worker&city=${encodeURIComponent(city)}`);
+  const handleDateSelect = (selectedDate: string, availableWorkers: UserProfile[]) => {
+    setDate(selectedDate);
+    setWorkers(availableWorkers);
+  };
 
-      const availableWorkers = workerList.filter((data: UserProfile) => {
-        return data.availability?.includes(date);
-      });
+  const handleWorkerSelect = (worker: UserProfile, selectedDate: string) => {
+    setSelectedWorker(worker);
+    setDate(selectedDate);
+    setStep(3);
+  };
 
-      setWorkers(availableWorkers);
-      setStep(2);
-    } catch (error) {
-      console.error('Error searching workers:', error);
-    }
-    setLoading(false);
+  const workerCost = selectedWorker?.defaultCompensation ?? 0;
+  const participantTotal = participants * 30;
+  const servicesTotal = additionalServices.reduce((sum, serviceId) => {
+    const service = ADDITIONAL_SERVICES.find((item) => item.id === serviceId);
+    return sum + (service?.price || 0);
+  }, 0);
+  const calculateTotal = () => participantTotal + workerCost + servicesTotal;
+
+  const toggleService = (serviceId: string) => {
+    setAdditionalServices((current) =>
+      current.includes(serviceId)
+        ? current.filter((id) => id !== serviceId)
+        : [...current, serviceId]
+    );
   };
 
   const handleBooking = async () => {
@@ -43,9 +69,9 @@ export default function Reservation() {
         city,
         participantCount: participants,
         status: 'pending',
-        totalAmount: participants * 50, // Dummy price calculation
+        totalAmount: calculateTotal(),
         paidAmount: 0,
-        additionalServices: [],
+        additionalServices,
       };
       await api.post('/events', eventData);
       setStep(4); // Confirmation/Payment step
@@ -62,32 +88,21 @@ export default function Reservation() {
       {step === 1 && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">City</label>
-            <select
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full mt-1 p-2 border rounded"
-            >
-              <option value="">Select a city</option>
-              {cities.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <p className="block text-sm font-medium text-gray-700">City</p>
+            <p className="text-lg font-semibold mt-1">{city || 'No city set'}</p>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Date</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full mt-1 p-2 border rounded"
-            />
-          </div>
-          <button
-            onClick={searchWorkers}
-            disabled={!city || !date || loading}
-            className="w-full py-2 bg-red-600 text-white rounded disabled:bg-gray-400"
-          >
-            {loading ? 'Searching...' : 'Find Workers'}
-          </button>
+          {city && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Select Date & View Available Workers</label>
+              <WorkerCalendar
+                city={city}
+                onDateSelect={handleDateSelect}
+                onWorkerSelect={handleWorkerSelect}
+                selectedDate={date}
+                clientEvents={clientEvents}
+              />
+            </div>
+          )}
         </div>
       )}
 
@@ -127,19 +142,50 @@ export default function Reservation() {
           <h3 className="text-xl font-semibold">Event Details</h3>
           <div>
             <label className="block text-sm font-medium text-gray-700">Number of Participants</label>
-            <input
-              type="number"
-              min="2"
+            <select
               value={participants}
-              onChange={(e) => setParticipants(parseInt(e.target.value))}
+              onChange={(e) => {
+                const value = parseInt(e.target.value, 10);
+                setParticipants(Math.min(12, Math.max(6, value)));
+              }}
               className="w-full mt-1 p-2 border rounded"
-            />
+            >
+              {[6, 7, 8, 9, 10, 11, 12].map((value) => (
+                <option key={value} value={value}>{value}</option>
+              ))}
+            </select>
           </div>
-          <div className="p-4 bg-gray-100 rounded">
+
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <p className="font-semibold text-gray-800 mb-3">Additional Services</p>
+            <div className="space-y-2">
+              {ADDITIONAL_SERVICES.map((service) => (
+                <label key={service.id} className="flex items-center gap-3 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={additionalServices.includes(service.id)}
+                    onChange={() => toggleService(service.id)}
+                    className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                  />
+                  <div>
+                    <div className="font-medium">{service.name}</div>
+                    <div className="text-xs text-gray-500">+${service.price}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-4 bg-gray-100 rounded space-y-2">
             <p><strong>Worker:</strong> {selectedWorker?.displayName}</p>
             <p><strong>Date:</strong> {date}</p>
             <p><strong>Location:</strong> {city}</p>
-            <p className="text-lg font-bold mt-2">Total Estimate: ${participants * 50}</p>
+            <div className="pt-4 border-t border-gray-200 space-y-2">
+              <p><strong>Participants Cost:</strong> ${participantTotal}</p>
+              <p><strong>Worker Cost:</strong> ${workerCost}</p>
+              <p><strong>Additional Services:</strong> ${servicesTotal}</p>
+              <p className="text-lg font-bold mt-2">Total Estimate: ${calculateTotal()}</p>
+            </div>
           </div>
           <div className="flex gap-2">
             <button onClick={() => setStep(2)} className="flex-1 py-2 border rounded">Back</button>

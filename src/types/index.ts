@@ -8,6 +8,7 @@ export interface UserProfile {
   photoURL?: string;
   city?: string; // For workers
   availability?: string[]; // ISO dates for workers
+  defaultCompensation?: number;
 }
 
 export interface SushiEvent {

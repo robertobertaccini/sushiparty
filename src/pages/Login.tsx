@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
+import LocationDropdown from '../components/LocationDropdown';
 import type { UserRole } from '../types';
 
 export default function Login() {
@@ -9,6 +10,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('client');
+  const [location, setLocation] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -21,7 +23,12 @@ export default function Login() {
         const res = await api.post('/auth/login', { email, password });
         login(res.user);
       } else {
-        const res = await api.post('/auth/register', { email, password, role });
+        // Validate location is selected for signup
+        if (!location) {
+          setError('Location is required for signup');
+          return;
+        }
+        const res = await api.post('/auth/register', { email, password, role, city: location });
         login(res.user);
       }
       navigate('/');
@@ -62,11 +69,25 @@ export default function Login() {
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value as UserRole)}
-                className="w-full mt-1 p-2 border border-gray-300 rounded"
+                className="w-full mt-1 p-2 border border-gray-300 rounded focus:ring-red-500 focus:border-red-500"
               >
-                <option value="client">Client (Organizer)</option>
-                <option value="participant">Participant</option>
+                <option value="client">Client</option>
+                <option value="worker">Worker</option>
               </select>
+            </div>
+          )}
+          {!isLogin && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Location <span className="text-red-500">*</span>
+              </label>
+              <LocationDropdown
+                value={location}
+                onChange={setLocation}
+                allowEmpty
+                emptyLabel="Select your location"
+                className="w-full mt-1"
+              />
             </div>
           )}
           <button

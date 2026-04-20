@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
+import ProfileCard from '../components/ProfileCard';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, format, isSameMonth, addMonths, subMonths } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -102,6 +103,11 @@ export default function WorkerDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-8">
+      <ProfileCard 
+        profile={profile} 
+        onProfileUpdate={(updatedProfile) => login(updatedProfile)}
+      />
+
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4">Worker Schedule</h2>
         

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
+import LocationDropdown from '../components/LocationDropdown';
 
 export default function AdminDbBrowser() {
   const { profile } = useAuth();
-  const [table, setTable] = useState('users');
+  const table = 'users';
   const [data, setData] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -15,8 +16,6 @@ export default function AdminDbBrowser() {
 
   const limit = 10;
 
-  const tables = ['users', 'events', 'messages', 'submissions'];
-  
   const pks: Record<string, string> = {
     users: 'uid',
     events: 'eventId',
@@ -43,7 +42,7 @@ export default function AdminDbBrowser() {
   useEffect(() => {
     fetchData();
     setEditingId(null);
-  }, [table, page, profile]);
+  }, [page, profile]);
 
   if (profile?.role !== 'admin') {
     return <div className="p-10 text-center text-red-500">Access Denied</div>;
@@ -83,28 +82,12 @@ export default function AdminDbBrowser() {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold">Database Browser</h2>
-        <div>
-          <label htmlFor="table-select" className="mr-2 font-semibold">Entity:</label>
-          <select
-            id="table-select"
-            value={table}
-            onChange={(e) => {
-              setTable(e.target.value);
-              setPage(1); // Reset to page 1 on table change
-            }}
-            className="border rounded p-2 bg-white"
-          >
-            {tables.map(t => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
+        <h2 className="text-3xl font-bold">User Management</h2>
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-lg shadow mb-4">
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
         {loading ? (
           <div className="p-10 text-center">Loading...</div>
         ) : data.length === 0 ? (
@@ -129,16 +112,25 @@ export default function AdminDbBrowser() {
                     {Object.keys(row).map((key) => {
                       const val = isEditing ? editFormData[key] : row[key];
                       const isPk = key === pk;
+                      const isCityField = key === 'city' && table === 'events';
                       
                       return (
                         <td key={key} className="p-4 text-sm max-w-[200px]">
                           {isEditing && !isPk ? (
-                            <input 
-                              type="text" 
-                              className="w-full border rounded px-2 py-1"
-                              value={val === null ? '' : typeof val === 'object' ? JSON.stringify(val) : String(val)}
-                              onChange={(e) => handleInputChange(key, e.target.value)}
-                            />
+                            isCityField ? (
+                              <LocationDropdown
+                                value={val || ''}
+                                onChange={(newVal) => handleInputChange(key, newVal)}
+                                className="text-sm"
+                              />
+                            ) : (
+                              <input 
+                                type="text" 
+                                className="w-full border rounded px-2 py-1"
+                                value={val === null ? '' : typeof val === 'object' ? JSON.stringify(val) : String(val)}
+                                onChange={(e) => handleInputChange(key, e.target.value)}
+                              />
+                            )
                           ) : (
                             <div className="truncate" title={typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val)}>
                               {typeof val === 'object' && val !== null ? JSON.stringify(val) : String(val)}
