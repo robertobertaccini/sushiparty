@@ -2,11 +2,15 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Login from './pages/Login';
 import Home from './pages/Home';
+import Landing from './pages/Landing';
 import Reservation from './pages/Reservation';
 import EventDetails from './pages/EventDetails';
 import WorkerDashboard from './pages/WorkerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminDbBrowser from './pages/AdminDbBrowser';
+import AdminConfiguration from './pages/AdminConfiguration';
+import Gallery from './pages/Gallery';
+import Occasion from './pages/Occasion';
 import Navbar from './components/Navbar';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -24,7 +28,10 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={
+            <Route path="/" element={<Landing />} />
+            <Route path="/occasions/:id" element={<Occasion />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Home />
               </ProtectedRoute>
@@ -47,6 +54,11 @@ function App() {
             <Route path="/admin" element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/config" element={
+              <ProtectedRoute>
+                <AdminConfiguration />
               </ProtectedRoute>
             } />
             <Route path="/admin/db" element={

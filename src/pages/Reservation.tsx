@@ -16,20 +16,42 @@ export default function Reservation() {
   const [additionalServices, setAdditionalServices] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [clientEvents, setClientEvents] = useState<SushiEvent[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [config, setConfig] = useState({ minParticipants: 6, maxParticipants: 12, reservationDelayDays: 1 });
+
+  const fetchReservations = async () => {
+    if (!user) return;
+    try {
+      const events = await api.get(`/events?clientId=${user.uid}`) as SushiEvent[];
+      const activeEvents = (events || []).filter(event => event.status !== 'cancelled');
+      setClientEvents(activeEvents);
+    } catch (err) {
+      console.error('Error fetching reservations:', err);
+    }
+  };
 
   useEffect(() => {
-    if (!user) return;
-    const fetchReservations = async () => {
-      try {
-        const events = await api.get(`/events?clientId=${user.uid}`) as SushiEvent[];
-        const activeEvents = (events || []).filter(event => event.status !== 'cancelled');
-        setClientEvents(activeEvents);
-      } catch (err) {
-        console.error('Error fetching reservations:', err);
-      }
-    };
     fetchReservations();
+    const fetchConfig = async () => {
+      try {
+        const data = await api.get('/settings');
+        if (data) {
+          setConfig(data);
+          if (participants < data.minParticipants) setParticipants(data.minParticipants);
+          if (participants > data.maxParticipants) setParticipants(data.maxParticipants);
+        }
+      } catch (err) {}
+    };
+    fetchConfig();
   }, [user]);
+
+  const handleMakeAnotherBooking = () => {
+    setRefreshKey(prev => prev + 1);
+    fetchReservations();
+    setDate('');
+    setSelectedWorker(null);
+    setStep(1);
+  };
 
   const handleDateSelect = (selectedDate: string, availableWorkers: UserProfile[]) => {
     setDate(selectedDate);
@@ -95,11 +117,14 @@ export default function Reservation() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Select Date & View Available Workers</label>
               <WorkerCalendar
+                key={refreshKey}
                 city={city}
                 onDateSelect={handleDateSelect}
                 onWorkerSelect={handleWorkerSelect}
                 selectedDate={date}
                 clientEvents={clientEvents}
+                reservationDelayDays={config.reservationDelayDays}
+                onMobileProceed={() => setStep(2)}
               />
             </div>
           )}
@@ -108,31 +133,44 @@ export default function Reservation() {
 
       {step === 2 && (
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold">Available Workers in {city}</h3>
+          <h3 className="text-xl font-semibold">Available Workers in {city} for {date}</h3>
           {workers.length === 0 ? (
             <p>No workers available for this date/location.</p>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {workers.map(worker => (
                 <div
                   key={worker.uid}
-                  onClick={() => setSelectedWorker(worker)}
-                  className={`p-4 border rounded cursor-pointer transition ${selectedWorker?.uid === worker.uid ? 'border-red-600 bg-red-50' : 'hover:border-gray-400'}`}
+                  className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:border-red-200 transition flex flex-col"
                 >
-                  <p className="font-bold">{worker.displayName}</p>
+                  {worker.photoURL && (
+                    <img
+                      src={worker.photoURL.replace('localhost', window.location.hostname)}
+                      alt={worker.displayName}
+                      className="w-full h-48 object-cover rounded-md mb-3"
+                    />
+                  )}
+                  <div className="space-y-1 flex-1">
+                    <p className="font-semibold text-gray-800 text-lg">{worker.displayName}</p>
+                    {worker.city && (
+                      <p className="text-sm text-gray-500">{worker.city}</p>
+                    )}
+                    {typeof worker.defaultCompensation === 'number' && (
+                      <p className="text-sm text-gray-600">€{worker.defaultCompensation} default compensation</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleWorkerSelect(worker, date)}
+                    className="mt-4 w-full py-2 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition"
+                  >
+                    Select
+                  </button>
                 </div>
               ))}
             </div>
           )}
-          <div className="flex gap-2">
-            <button onClick={() => setStep(1)} className="flex-1 py-2 border rounded">Back</button>
-            <button
-              onClick={() => setStep(3)}
-              disabled={!selectedWorker}
-              className="flex-1 py-2 bg-red-600 text-white rounded disabled:bg-gray-400"
-            >
-              Continue
-            </button>
+          <div className="flex gap-2 mt-4">
+            <button onClick={() => setStep(1)} className="w-full py-2 border rounded">Back</button>
           </div>
         </div>
       )}
@@ -146,11 +184,11 @@ export default function Reservation() {
               value={participants}
               onChange={(e) => {
                 const value = parseInt(e.target.value, 10);
-                setParticipants(Math.min(12, Math.max(6, value)));
+                setParticipants(Math.min(config.maxParticipants, Math.max(config.minParticipants, value)));
               }}
               className="w-full mt-1 p-2 border rounded"
             >
-              {[6, 7, 8, 9, 10, 11, 12].map((value) => (
+              {Array.from({ length: config.maxParticipants - config.minParticipants + 1 }, (_, i) => config.minParticipants + i).map((value) => (
                 <option key={value} value={value}>{value}</option>
               ))}
             </select>
@@ -205,7 +243,7 @@ export default function Reservation() {
           <div className="text-5xl text-green-500">✓</div>
           <h3 className="text-2xl font-bold">Booking Requested!</h3>
           <p>Your reservation is pending. In a real app, you would now complete the Stripe payment of ${(participants * 50) / 2}.</p>
-          <button onClick={() => setStep(1)} className="py-2 px-6 bg-red-600 text-white rounded">Make another booking</button>
+          <button onClick={handleMakeAnotherBooking} className="py-2 px-6 bg-red-600 text-white rounded">Make another booking</button>
         </div>
       )}
     </div>

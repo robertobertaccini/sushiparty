@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3001/api';
+const API_URL = `http://${window.location.hostname}:3001/api`;
 
 export const api = {
   get: async (endpoint: string) => {

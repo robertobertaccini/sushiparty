@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { format, getDay, getDaysInMonth, startOfMonth, addMonths, subMonths } from 'date-fns';
+import { format, getDay, getDaysInMonth, startOfMonth, addMonths, subMonths, addDays, startOfDay, parseISO } from 'date-fns';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { api } from '../lib/api';
 import type { UserProfile, SushiEvent } from '../types';
@@ -18,9 +18,11 @@ interface WorkerCalendarProps {
   onWorkerSelect: (worker: UserProfile, date: string) => void;
   selectedDate?: string;
   clientEvents?: SushiEvent[];
+  reservationDelayDays?: number;
+  onMobileProceed?: () => void;
 }
 
-export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, selectedDate, clientEvents = [] }: WorkerCalendarProps) {
+export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, selectedDate, clientEvents = [], reservationDelayDays = 1, onMobileProceed }: WorkerCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([]);
   const [loading, setLoading] = useState(false);
@@ -132,9 +134,9 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
   const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="flex gap-4 bg-white rounded-lg border overflow-hidden" style={{ minHeight: '500px' }}>
+    <div className="flex flex-col md:flex-row gap-0 md:gap-4 bg-white rounded-lg border overflow-hidden" style={{ minHeight: '500px' }}>
       {/* Calendar Section */}
-      <div className="flex-1 flex flex-col border-r">
+      <div className="flex-1 flex flex-col border-b md:border-b-0 md:border-r">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <button
@@ -171,7 +173,11 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
             <div className="grid grid-cols-7 gap-2">
               {calendarDays.map((day, idx) => {
                 const hasEvent = !!day.clientEvent;
-                const isAvailable = !hasEvent && day.workers.length > 0;
+                const today = startOfDay(new Date());
+                const minDate = addDays(today, reservationDelayDays);
+                const dayDate = parseISO(day.date);
+                const isTooEarly = dayDate < minDate;
+                const isAvailable = !hasEvent && !isTooEarly && day.workers.length > 0;
                 
                 return (
                   <button
@@ -217,8 +223,31 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
         )}
       </div>
 
-      {/* Workers Panel */}
-      <div className="w-72 bg-gray-50 flex flex-col">
+      {/* Mobile Workers Dropdown */}
+      <div className="block md:hidden p-4 bg-gray-50">
+        {selectedDate ? (
+          <>
+            <p className="text-sm font-semibold text-gray-700 mb-2">
+              {format(new Date(selectedDate), 'MMM dd, yyyy')} - {(workerAvailability[selectedDate] || []).length} worker{(workerAvailability[selectedDate] || []).length !== 1 ? 's' : ''} available
+            </p>
+            {(workerAvailability[selectedDate] || []).length > 0 ? (
+              <button
+                onClick={onMobileProceed}
+                className="w-full mt-2 py-2 bg-red-600 text-white font-medium rounded hover:bg-red-700 transition"
+              >
+                Go with sushiman selection
+              </button>
+            ) : (
+              <p className="text-sm text-gray-500">No workers available</p>
+            )}
+          </>
+        ) : (
+          <p className="text-sm text-gray-400 text-center">Select a date to view available workers</p>
+        )}
+      </div>
+
+      {/* Desktop Workers Panel */}
+      <div className="hidden md:flex w-72 bg-gray-50 flex-col">
         {selectedDate ? (
           <>
             <div className="p-4 border-b bg-white">
@@ -237,7 +266,7 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
                 >
                   {worker.photoURL && (
                     <img
-                      src={worker.photoURL}
+                      src={worker.photoURL.replace('localhost', window.location.hostname)}
                       alt={worker.displayName}
                       className="w-full h-40 object-cover rounded-md mb-3"
                     />

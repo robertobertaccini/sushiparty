@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LogOut, Home, Calendar, Shield, User, Menu, X } from 'lucide-react';
+import { LogOut, Home, Calendar, Shield, User, Menu, X, LogIn, Image } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navbar() {
@@ -10,13 +10,12 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
-  if (!user) return null;
-
   const links = [
-    { to: '/', label: 'Home', icon: Home },
+    { to: '/gallery', label: 'Gallery', icon: Image, show: true },
+    { to: '/dashboard', label: 'Dashboard', icon: Home, show: !!user },
     { to: '/reserve', label: 'Book Now', icon: Calendar, show: profile?.role === 'client' },
     { to: '/worker', label: 'My Schedule', icon: User, show: profile?.role === 'worker' },
     { to: '/admin', label: 'Admin', icon: Shield, show: profile?.role === 'admin' },
@@ -33,23 +32,35 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            {links.filter(l => l.show !== false).map(link => (
+            {user ? (
+              <>
+                {links.filter(l => l.show !== false).map(link => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className="hover:bg-red-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+                  >
+                    <link.icon size={18} />
+                    {link.label}
+                  </Link>
+                ))}
+                <button
+                  onClick={handleLogout}
+                  className="hover:bg-red-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
+              </>
+            ) : (
               <Link
-                key={link.to}
-                to={link.to}
+                to="/login"
                 className="hover:bg-red-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
               >
-                <link.icon size={18} />
-                {link.label}
+                <LogIn size={18} />
+                Login
               </Link>
-            ))}
-            <button
-              onClick={handleLogout}
-              className="hover:bg-red-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
-            >
-              <LogOut size={18} />
-              Logout
-            </button>
+            )}
           </div>
 
           <div className="md:hidden flex items-center">
@@ -63,24 +74,37 @@ export default function Navbar() {
       {/* Mobile menu */}
       {isOpen && (
         <div className="md:hidden bg-red-700 pb-4 px-2">
-          {links.filter(l => l.show !== false).map(link => (
+          {user ? (
+            <>
+              {links.filter(l => l.show !== false).map(link => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-3 py-2 rounded-md text-base font-medium flex items-center gap-3"
+                >
+                  <link.icon size={20} />
+                  {link.label}
+                </Link>
+              ))}
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-3 py-2 rounded-md text-base font-medium flex items-center gap-3"
+              >
+                <LogOut size={20} />
+                Logout
+              </button>
+            </>
+          ) : (
             <Link
-              key={link.to}
-              to={link.to}
+              to="/login"
               onClick={() => setIsOpen(false)}
               className="block px-3 py-2 rounded-md text-base font-medium flex items-center gap-3"
             >
-              <link.icon size={20} />
-              {link.label}
+              <LogIn size={20} />
+              Login
             </Link>
-          ))}
-          <button
-            onClick={handleLogout}
-            className="w-full text-left px-3 py-2 rounded-md text-base font-medium flex items-center gap-3"
-          >
-            <LogOut size={20} />
-            Logout
-          </button>
+          )}
         </div>
       )}
     </nav>

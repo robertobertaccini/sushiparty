@@ -118,7 +118,7 @@ export default function ProfileCard({ profile, onProfileUpdate }: ProfileCardPro
             <div className="w-32 h-32 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden hover:border-red-600 hover:bg-red-50 transition">
               {profile?.photoURL ? (
                 <img
-                  src={profile.photoURL}
+                  src={profile.photoURL.replace('localhost', window.location.hostname)}
                   alt={profile?.displayName}
                   className="w-full h-full object-cover"
                 />

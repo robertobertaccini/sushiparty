@@ -211,6 +211,26 @@ app.get('/api/submissions/:eventId', (req, res) => {
   });
 });
 
+// SETTINGS ROUTES
+app.get('/api/settings', (req, res) => {
+  db.get('SELECT * FROM settings WHERE id = 1', [], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(row || { minParticipants: 2, maxParticipants: 20, reservationDelayDays: 1 });
+  });
+});
+
+app.put('/api/settings', (req, res) => {
+  const { minParticipants, maxParticipants, reservationDelayDays } = req.body;
+  db.run(
+    'UPDATE settings SET minParticipants = ?, maxParticipants = ?, reservationDelayDays = ? WHERE id = 1',
+    [minParticipants, maxParticipants, reservationDelayDays],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true });
+    }
+  );
+});
+
 // ADMIN DB BROWSER ROUTE
 app.get('/api/admin/db/:table', (req, res) => {
   const allowedTables = ['users', 'events', 'messages', 'submissions'];

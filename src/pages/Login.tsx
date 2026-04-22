@@ -3,13 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
 import LocationDropdown from '../components/LocationDropdown';
-import type { UserRole } from '../types';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('client');
   const [location, setLocation] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -28,10 +26,10 @@ export default function Login() {
           setError('Location is required for signup');
           return;
         }
-        const res = await api.post('/auth/register', { email, password, role, city: location });
+        const res = await api.post('/auth/register', { email, password, role: 'client', city: location });
         login(res.user);
       }
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
     }
@@ -63,19 +61,6 @@ export default function Login() {
               required
             />
           </div>
-          {!isLogin && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Role</label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
-                className="w-full mt-1 p-2 border border-gray-300 rounded focus:ring-red-500 focus:border-red-500"
-              >
-                <option value="client">Client</option>
-                <option value="worker">Worker</option>
-              </select>
-            </div>
-          )}
           {!isLogin && (
             <div>
               <label className="block text-sm font-medium text-gray-700">

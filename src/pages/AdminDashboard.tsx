@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
 import LocationDropdown from '../components/LocationDropdown';
 import { ADDITIONAL_SERVICES } from '../lib/constants';
-import { Share2, XCircle } from 'lucide-react';
+import { Share2, XCircle, Settings } from 'lucide-react';
 import type { UserProfile } from '../types';
 
 export default function AdminDashboard() {
@@ -116,12 +116,22 @@ export default function AdminDashboard() {
     <div className="max-w-6xl mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold">Admin Dashboard</h2>
-        <Link
-          to="/admin/db"
-          className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
-        >
-          User Management
-        </Link>
+        <div className="flex gap-4">
+          <Link
+            to="/admin/config"
+            className="flex items-center gap-2 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition"
+            title="Configuration"
+          >
+            <Settings size={20} />
+            <span className="hidden sm:inline">Configuration</span>
+          </Link>
+          <Link
+            to="/admin/db"
+            className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
+          >
+            User Management
+          </Link>
+        </div>
       </div>
 
       <div className="overflow-x-auto bg-white rounded-lg shadow">

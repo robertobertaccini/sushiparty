@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"cd backend && npm start\"",
+    "dev": "concurrently \"vite --host\" \"cd backend && npm start\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
