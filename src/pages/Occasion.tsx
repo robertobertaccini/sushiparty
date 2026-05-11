@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const occasionsData: Record<string, { title: string; subtitle: string; desc: string; longDesc: string; image: string }> = {
   'compleanno-a-tema': {
@@ -33,14 +34,15 @@ const occasionsData: Record<string, { title: string; subtitle: string; desc: str
 };
 
 export default function Occasion() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   
   if (!id || !occasionsData[id]) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">Occasione non trovata</h1>
-          <Link to="/" className="text-red-600 hover:underline">Torna alla home</Link>
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">{t('occasion.notFound')}</h1>
+          <Link to="/" className="text-red-600 hover:underline">{t('occasion.backToHome')}</Link>
         </div>
       </div>
     );
@@ -53,7 +55,7 @@ export default function Occasion() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link to="/" className="inline-flex items-center text-red-600 hover:text-red-700 font-medium mb-8">
           <ArrowLeft className="mr-2" size={20} />
-          Torna indietro
+          {t('occasion.back')}
         </Link>
         
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -65,18 +67,31 @@ export default function Occasion() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             <div className="absolute bottom-0 left-0 p-8">
-              <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-2">{occasion.title}</h1>
-              <p className="text-xl text-red-100 font-semibold">{occasion.subtitle}</p>
+              <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-2">
+                {id === 'compleanno-a-tema' ? t('landing.occasions.compleanno.title') : 
+                 id === 'festa-a-tema' ? t('landing.occasions.festa.title') : 
+                 id === 'team-building' ? t('landing.occasions.teambuilding.title') : 
+                 t('landing.occasions.contest.title')}
+              </h1>
+              <p className="text-xl text-red-100 font-semibold">
+                {id === 'compleanno-a-tema' ? t('landing.occasions.compleanno.subtitle') : 
+                 id === 'festa-a-tema' ? t('landing.occasions.festa.subtitle') : 
+                 id === 'team-building' ? t('landing.occasions.teambuilding.subtitle') : 
+                 t('landing.occasions.contest.subtitle')}
+              </p>
             </div>
           </div>
           
           <div className="p-8 md:p-12">
             <p className="text-gray-600 text-xl font-medium mb-8 leading-relaxed italic border-l-4 border-red-500 pl-4">
-              "{occasion.desc}"
+              "{id === 'compleanno-a-tema' ? t('landing.occasions.compleanno.desc') : 
+                id === 'festa-a-tema' ? t('landing.occasions.festa.desc') : 
+                id === 'team-building' ? t('landing.occasions.teambuilding.desc') : 
+                t('landing.occasions.contest.desc')}"
             </p>
             <div className="prose prose-lg text-gray-700 max-w-none">
               <p className="leading-relaxed">
-                {occasion.longDesc}
+                {t(`occasion.items.${id}.longDesc`)}
               </p>
             </div>
             
@@ -85,7 +100,7 @@ export default function Occasion() {
                 to="/login"
                 className="inline-block bg-red-600 text-white font-bold text-lg px-8 py-4 rounded-lg hover:bg-red-700 transition shadow-lg hover:shadow-xl"
               >
-                Prenota Ora questa Esperienza
+                {t('occasion.bookNow')}
               </Link>
             </div>
           </div>

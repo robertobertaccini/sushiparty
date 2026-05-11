@@ -2,8 +2,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { LogOut, Home, Calendar, Shield, User, Menu, X, LogIn, Image } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from './LanguageSelector';
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -14,11 +17,11 @@ export default function Navbar() {
   };
 
   const links = [
-    { to: '/gallery', label: 'Gallery', icon: Image, show: true },
-    { to: '/dashboard', label: 'Dashboard', icon: Home, show: !!user },
-    { to: '/reserve', label: 'Book Now', icon: Calendar, show: profile?.role === 'client' },
-    { to: '/worker', label: 'My Schedule', icon: User, show: profile?.role === 'worker' },
-    { to: '/admin', label: 'Admin', icon: Shield, show: profile?.role === 'admin' },
+    { to: '/gallery', label: t('common.navbar.gallery'), icon: Image, show: true },
+    { to: '/dashboard', label: t('common.navbar.dashboard'), icon: Home, show: !!user },
+    { to: '/reserve', label: t('common.navbar.bookNow'), icon: Calendar, show: profile?.role === 'client' },
+    { to: '/worker', label: t('common.navbar.mySchedule'), icon: User, show: profile?.role === 'worker' },
+    { to: '/admin', label: t('common.navbar.admin'), icon: Shield, show: profile?.role === 'admin' },
   ];
 
   return (
@@ -32,6 +35,7 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
+            <LanguageSelector />
             {user ? (
               <>
                 {links.filter(l => l.show !== false).map(link => (
@@ -49,7 +53,7 @@ export default function Navbar() {
                   className="hover:bg-red-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
                 >
                   <LogOut size={18} />
-                  Logout
+                  {t('common.navbar.logout')}
                 </button>
               </>
             ) : (
@@ -58,7 +62,7 @@ export default function Navbar() {
                 className="hover:bg-red-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
               >
                 <LogIn size={18} />
-                Login
+                {t('common.navbar.login')}
               </Link>
             )}
           </div>
@@ -73,7 +77,10 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden bg-red-700 pb-4 px-2">
+        <div className="md:hidden bg-red-700 pb-4 px-2 space-y-1">
+          <div className="px-3 py-2">
+            <LanguageSelector />
+          </div>
           {user ? (
             <>
               {links.filter(l => l.show !== false).map(link => (
@@ -92,7 +99,7 @@ export default function Navbar() {
                 className="w-full text-left px-3 py-2 rounded-md text-base font-medium flex items-center gap-3"
               >
                 <LogOut size={20} />
-                Logout
+                {t('common.navbar.logout')}
               </button>
             </>
           ) : (
@@ -102,7 +109,7 @@ export default function Navbar() {
               className="block px-3 py-2 rounded-md text-base font-medium flex items-center gap-3"
             >
               <LogIn size={20} />
-              Login
+              {t('common.navbar.login')}
             </Link>
           )}
         </div>

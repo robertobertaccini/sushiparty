@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { format, getDay, getDaysInMonth, startOfMonth, addMonths, subMonths, addDays, startOfDay, parseISO } from 'date-fns';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { api } from '../lib/api';
+import { useTranslation } from 'react-i18next';
+import { it, enUS } from 'date-fns/locale';
 import type { UserProfile, SushiEvent } from '../types';
 
 interface CalendarDay {
@@ -23,6 +25,7 @@ interface WorkerCalendarProps {
 }
 
 export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, selectedDate, clientEvents = [], reservationDelayDays = 1, onMobileProceed }: WorkerCalendarProps) {
+  const { t, i18n } = useTranslation();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([]);
   const [loading, setLoading] = useState(false);
@@ -131,7 +134,15 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
     setCurrentMonth(addMonths(currentMonth, 1));
   };
 
-  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayLabels = [
+    t('calendar.days.sun'),
+    t('calendar.days.mon'),
+    t('calendar.days.tue'),
+    t('calendar.days.wed'),
+    t('calendar.days.thu'),
+    t('calendar.days.fri'),
+    t('calendar.days.sat')
+  ];
 
   return (
     <div className="flex flex-col md:flex-row gap-0 md:gap-4 bg-white rounded-lg border overflow-hidden" style={{ minHeight: '500px' }}>
@@ -146,7 +157,7 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
             <ChevronLeft className="w-5 h-5" />
           </button>
           <h3 className="text-lg font-semibold">
-            {format(currentMonth, 'MMMM yyyy')}
+            {format(currentMonth, 'MMMM yyyy', { locale: i18n.language === 'it' ? it : enUS })}
           </h3>
           <button
             onClick={handleNextMonth}
@@ -156,7 +167,7 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
           </button>
         </div>
 
-        {loading && <div className="p-4 text-center text-gray-500">Loading availability...</div>}
+        {loading && <div className="p-4 text-center text-gray-500">{t('calendar.loading')}</div>}
 
         {!loading && (
           <div className="p-4 flex-1 flex flex-col">
@@ -228,21 +239,21 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
         {selectedDate ? (
           <>
             <p className="text-sm font-semibold text-gray-700 mb-2">
-              {format(new Date(selectedDate), 'MMM dd, yyyy')} - {(workerAvailability[selectedDate] || []).length} worker{(workerAvailability[selectedDate] || []).length !== 1 ? 's' : ''} available
+              {format(new Date(selectedDate), 'MMM dd, yyyy', { locale: i18n.language === 'it' ? it : enUS })} - {t('workerCalendar.availableInfo', { count: (workerAvailability[selectedDate] || []).length })}
             </p>
             {(workerAvailability[selectedDate] || []).length > 0 ? (
               <button
                 onClick={onMobileProceed}
                 className="w-full mt-2 py-2 bg-red-600 text-white font-medium rounded hover:bg-red-700 transition"
               >
-                Go with sushiman selection
+                {t('workerCalendar.goWithSelection')}
               </button>
             ) : (
-              <p className="text-sm text-gray-500">No workers available</p>
+              <p className="text-sm text-gray-500">{t('workerCalendar.noWorkers')}</p>
             )}
           </>
         ) : (
-          <p className="text-sm text-gray-400 text-center">Select a date to view available workers</p>
+          <p className="text-sm text-gray-400 text-center">{t('workerCalendar.selectDate')}</p>
         )}
       </div>
 
@@ -252,10 +263,10 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
           <>
             <div className="p-4 border-b bg-white">
               <p className="text-sm font-semibold text-gray-700">
-                {format(new Date(selectedDate), 'MMM dd, yyyy')}
+                {format(new Date(selectedDate), 'MMM dd, yyyy', { locale: i18n.language === 'it' ? it : enUS })}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                {(workerAvailability[selectedDate] || []).length} worker{(workerAvailability[selectedDate] || []).length !== 1 ? 's' : ''} available
+                {t('workerCalendar.availableInfo', { count: (workerAvailability[selectedDate] || []).length })}
               </p>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -277,14 +288,14 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
                       <p className="text-xs text-gray-500">{worker.city}</p>
                     )}
                     {typeof worker.defaultCompensation === 'number' && (
-                      <p className="text-sm text-gray-600">€{worker.defaultCompensation} default compensation</p>
+                      <p className="text-sm text-gray-600">{t('reservation.step2.compensation', { amount: worker.defaultCompensation })}</p>
                     )}
                   </div>
                   <button
                     onClick={() => onWorkerSelect(worker, selectedDate)}
                     className="mt-3 w-full py-2 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition"
                   >
-                    Select
+                    {t('reservation.step2.select')}
                   </button>
                 </div>
               ))}
@@ -292,7 +303,7 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
           </>
         ) : (
           <div className="flex items-center justify-center h-full text-gray-400">
-            <p className="text-sm">Select a date to view available workers</p>
+            <p className="text-sm">{t('workerCalendar.selectDate')}</p>
           </div>
         )}
       </div>
@@ -302,7 +313,7 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full shadow-xl overflow-hidden relative">
             <div className="flex justify-between items-center p-4 border-b bg-gray-50">
-              <h3 className="text-xl font-bold text-gray-800">Reservation Details</h3>
+              <h3 className="text-xl font-bold text-gray-800">{t('workerCalendar.modal.title')}</h3>
               <button 
                 onClick={() => setEventModal(null)}
                 className="text-gray-500 hover:text-gray-700 hover:bg-gray-200 p-1 rounded-full transition"
@@ -312,24 +323,24 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
             </div>
             <div className="p-6 space-y-4">
               <div className="flex justify-between">
-                <span className="text-gray-600 font-medium">Date:</span>
+                <span className="text-gray-600 font-medium">{t('workerCalendar.modal.date')}:</span>
                 <span className="font-semibold text-gray-800">{eventModal.date}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 font-medium">City:</span>
+                <span className="text-gray-600 font-medium">{t('workerCalendar.modal.city')}:</span>
                 <span className="font-semibold text-gray-800">{eventModal.city}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 font-medium">Participants:</span>
+                <span className="text-gray-600 font-medium">{t('workerCalendar.modal.participants')}:</span>
                 <span className="font-semibold text-gray-800">{eventModal.participantCount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 font-medium">Status:</span>
-                <span className="font-semibold text-gray-800 capitalize">{eventModal.status}</span>
+                <span className="text-gray-600 font-medium">{t('workerCalendar.modal.status')}:</span>
+                <span className="font-semibold text-gray-800 capitalize">{t(`dashboard.statuses.${eventModal.status}`)}</span>
               </div>
               <div className="flex justify-between pt-4 border-t border-gray-100">
-                <span className="text-gray-600 font-medium">Total Amount:</span>
-                <span className="font-bold text-lg text-red-600">${eventModal.totalAmount}</span>
+                <span className="text-gray-600 font-medium">{t('workerCalendar.modal.totalAmount')}:</span>
+                <span className="font-bold text-lg text-red-600">€{eventModal.totalAmount}</span>
               </div>
             </div>
             <div className="p-4 border-t bg-gray-50">
@@ -337,7 +348,7 @@ export default function WorkerCalendar({ city, onDateSelect, onWorkerSelect, sel
                 onClick={() => setEventModal(null)}
                 className="w-full py-2 bg-red-600 text-white rounded font-medium hover:bg-red-700 transition"
               >
-                Close
+                {t('workerCalendar.modal.close')}
               </button>
             </div>
           </div>

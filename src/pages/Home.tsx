@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
-// TODO: Fix QRCode import - qrcode.react doesn't provide a default export
-// import QRCode from 'qrcode.react';
-const QRCode = () => null;
-import { Download, Share2 } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
+import { Share2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { SushiEvent } from '../types';
 
 type Reservation = SushiEvent & { eventId: string };
 
 export default function Home() {
+  const { t, i18n } = useTranslation();
   const { user, profile } = useAuth();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,25 +36,15 @@ export default function Home() {
 
   const generateShareableQRCode = (reservation: Reservation) => {
     // Create a shareable link with reservation details
-    return `${window.location.origin}/event/${reservation.eventId}`;
+    // Use the local IP instead of localhost so it's accessible from mobile devices
+    const origin = window.location.origin.replace(/localhost|127\.0\.0\.1/, '192.168.1.237');
+    return `${origin}/event/${reservation.eventId}`;
   };
 
-  const downloadQRCode = (reservationId: string) => {
-    const qrCodeElement = document.getElementById(`qr-${reservationId}`);
-    if (qrCodeElement) {
-      const canvas = qrCodeElement.querySelector('canvas');
-      if (canvas) {
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        link.download = `reservation-${reservationId}.png`;
-        link.click();
-      }
-    }
-  };
 
   const shareQRCode = async (reservation: Reservation) => {
     const shareUrl = generateShareableQRCode(reservation);
-    const shareText = `Check out my Sushi Party reservation! Date: ${reservation.date}, Participants: ${reservation.participantCount}`;
+    const shareText = t('dashboard.shareText', { date: reservation.date, count: reservation.participantCount });
 
     if (navigator.share) {
       try {
@@ -69,7 +59,7 @@ export default function Home() {
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(shareUrl);
-      alert('Reservation link copied to clipboard!');
+      alert(t('dashboard.copied'));
     }
   };
 
@@ -89,38 +79,38 @@ export default function Home() {
   };
 
   if (!user) {
-    return <div className="text-center py-8">Please log in first</div>;
+    return <div className="text-center py-8">{t('common.navbar.login')}</div>;
   }
 
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-red-600 mb-2">Sushiparty</h1>
-        <p className="text-gray-600">Welcome, {profile?.displayName || 'User'}!</p>
-        <p className="text-sm text-gray-500">Role: {profile?.role}</p>
+        <p className="text-gray-600">{t('dashboard.welcome', { name: profile?.displayName || 'User' })}</p>
+        <p className="text-sm text-gray-500">{t('dashboard.role', { role: profile?.role })}</p>
       </div>
 
       {loading ? (
         <div className="text-center py-12">
-          <p className="text-gray-600">Loading your reservations...</p>
+          <p className="text-gray-600">{t('dashboard.loading')}</p>
         </div>
       ) : error ? (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-          <p>Error: {error}</p>
+          <p>{t('dashboard.error', { message: error })}</p>
         </div>
       ) : reservations.length === 0 ? (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
-          <p className="text-blue-700 mb-4">No reservations yet</p>
+          <p className="text-blue-700 mb-4">{t('dashboard.noReservations')}</p>
           <a
             href="/reserve"
             className="inline-block px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
           >
-            Make a Reservation
+            {t('dashboard.makeReservation')}
           </a>
         </div>
       ) : (
         <div>
-          <h2 className="text-2xl font-bold mb-6 text-gray-800">Your Reservations</h2>
+          <h2 className="text-2xl font-bold mb-6 text-gray-800">{t('dashboard.title')}</h2>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {reservations.map((reservation) => (
               <div
@@ -129,7 +119,7 @@ export default function Home() {
               >
                 {/* Header */}
                 <div className="bg-gradient-to-r from-red-500 to-red-600 p-4 text-white">
-                  <p className="text-sm opacity-90">Reservation ID</p>
+                  <p className="text-sm opacity-90">{t('dashboard.reservationId')}</p>
                   <p className="font-mono text-lg font-bold truncate">{reservation.eventId}</p>
                 </div>
 
@@ -138,74 +128,72 @@ export default function Home() {
                   {/* Details */}
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Date:</span>
+                      <span className="text-gray-600">{t('dashboard.date')}:</span>
                       <span className="font-semibold">
-                        {new Date(reservation.date).toLocaleDateString()}
+                        {new Date(reservation.date).toLocaleDateString(i18n.language === 'it' ? 'it-IT' : 'en-US')}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">City:</span>
+                      <span className="text-gray-600">{t('dashboard.city')}:</span>
                       <span className="font-semibold">{reservation.city}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Participants:</span>
+                      <span className="text-gray-600">{t('dashboard.participants')}:</span>
                       <span className="font-semibold">{reservation.participantCount}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Total Amount:</span>
+                      <span className="text-gray-600">{t('dashboard.totalAmount')}:</span>
                       <span className="font-semibold text-red-600">
-                        ${reservation.totalAmount}
+                        €{reservation.totalAmount}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Status:</span>
+                      <span className="text-gray-600">{t('dashboard.status')}:</span>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(
                           reservation.status
                         )}`}
                       >
-                        {reservation.status.charAt(0).toUpperCase() + reservation.status.slice(1)}
+                        {t(`dashboard.statuses.${reservation.status}`)}
                       </span>
                     </div>
                   </div>
 
-                  {/* QR Code */}
                   <div className="border-t pt-4">
                     <p className="text-xs font-semibold text-gray-600 mb-3 text-center">
-                      Shareable QR Code
+                      {t('dashboard.qrTitle')}
                     </p>
                     <div
                       id={`qr-${reservation.eventId}`}
                       className="flex justify-center bg-gray-50 p-2 rounded"
                     >
-                      <QRCode
-                        value={generateShareableQRCode(reservation)}
-                        size={150}
-                        level="H"
-                        includeMargin={true}
-                        fgColor="#1f2937"
-                        bgColor="#ffffff"
-                      />
+                      <a 
+                        href={generateShareableQRCode(reservation)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="transition-transform hover:scale-105"
+                      >
+                        <QRCodeCanvas
+                          value={generateShareableQRCode(reservation)}
+                          size={150}
+                          level="H"
+                          includeMargin={true}
+                          fgColor="#1f2937"
+                          bgColor="#ffffff"
+                        />
+                      </a>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-2 pt-4 border-t">
-                    <button
-                      onClick={() => downloadQRCode(reservation.eventId)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition text-sm font-semibold"
-                      title="Download QR Code"
-                    >
-                      <Download size={16} />
-                      Download
-                    </button>
+                  <div className="pt-4 border-t">
                     <button
                       onClick={() => shareQRCode(reservation)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200 transition text-sm font-semibold"
-                      title="Share QR Code"
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200 transition text-sm font-semibold"
+                      title={t('dashboard.share')}
                     >
                       <Share2 size={16} />
-                      Share
+                      {t('dashboard.share')}
                     </button>
                   </div>
                 </div>
@@ -213,13 +201,12 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Add New Reservation Button */}
           <div className="mt-8 text-center">
             <a
               href="/reserve"
               className="inline-block px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
             >
-              Make Another Reservation
+              {t('dashboard.makeAnother')}
             </a>
           </div>
         </div>

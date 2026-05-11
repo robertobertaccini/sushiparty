@@ -243,12 +243,42 @@ app.get('/api/admin/db/:table', (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
+  
+  const role = req.query.role ? String(req.query.role).trim() : null;
+  const city = req.query.city ? String(req.query.city).trim() : null;
+  
+  console.log(`[AdminDB] Table: ${table}, Role: "${role}", City: "${city}", Page: ${page}`);
 
-  db.get(`SELECT COUNT(*) as count FROM ${table}`, [], (err, countRow) => {
-    if (err) return res.status(500).json({ error: err.message });
+  let whereClause = 'WHERE 1=1';
+  let params = [];
 
-    db.all(`SELECT * FROM ${table} LIMIT ? OFFSET ?`, [limit, offset], (err, rows) => {
-      if (err) return res.status(500).json({ error: err.message });
+  if (table === 'users' || table === 'events') {
+    if (role && role !== '' && table === 'users') {
+      whereClause += ' AND role = ?';
+      params.push(role);
+    }
+    if (city && city !== '') {
+      whereClause += ' AND city = ?';
+      params.push(city);
+    }
+  }
+
+  const countSql = `SELECT COUNT(*) as count FROM ${table} ${whereClause}`;
+  db.get(countSql, params, (err, countRow) => {
+    if (err) {
+        console.error('[AdminDB] Count Error:', err.message);
+        return res.status(500).json({ error: err.message });
+    }
+
+    const selectSql = `SELECT * FROM ${table} ${whereClause} LIMIT ? OFFSET ?`;
+    const selectParams = [...params, limit, offset];
+    console.log(`[AdminDB] Query: ${selectSql} | Params: ${JSON.stringify(selectParams)}`);
+
+    db.all(selectSql, selectParams, (err, rows) => {
+      if (err) {
+          console.error('[AdminDB] Select Error:', err.message);
+          return res.status(500).json({ error: err.message });
+      }
 
       res.json({
         total: countRow.count,
@@ -324,6 +354,25 @@ app.put('/api/admin/db/:table/:id', (req, res) => {
   });
 });
 
+
+// PAYMENT STUB
+app.post('/api/payment', (req, res) => {
+  const { eventId, amount } = req.body;
+  console.log(`[Payment] Processing payment for event ${eventId}, amount ${amount}`);
+  
+  // Simulate processing time
+  setTimeout(() => {
+    // Stub implementation: always OK
+    db.run(
+      'UPDATE events SET status = ?, paidAmount = ? WHERE eventId = ?',
+      ['confirmed', amount, eventId],
+      (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, transactionId: generateId() });
+      }
+    );
+  }, 1000);
+});
 
 app.put('/api/users/:uid', (req, res) => {
   const uid = req.params.uid;

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { format, getDay, getDaysInMonth, startOfMonth, addMonths, subMonths } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../lib/api';
+import { useTranslation } from 'react-i18next';
+import { it, enUS } from 'date-fns/locale';
 import type { UserProfile } from '../types';
 
 interface CalendarDay {
@@ -16,6 +18,7 @@ interface PublicCalendarProps {
 }
 
 export default function PublicCalendar({ city }: PublicCalendarProps) {
+  const { t, i18n } = useTranslation();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [calendarDays, setCalendarDays] = useState<CalendarDay[]>([]);
   const [loading, setLoading] = useState(false);
@@ -119,7 +122,15 @@ export default function PublicCalendar({ city }: PublicCalendarProps) {
     setSelectedDate(null);
   };
 
-  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayLabels = [
+    t('calendar.days.sun'),
+    t('calendar.days.mon'),
+    t('calendar.days.tue'),
+    t('calendar.days.wed'),
+    t('calendar.days.thu'),
+    t('calendar.days.fri'),
+    t('calendar.days.sat')
+  ];
 
   return (
     <div className="flex flex-col md:flex-row gap-4 bg-white rounded-lg border overflow-hidden" style={{ minHeight: '400px' }}>
@@ -134,7 +145,7 @@ export default function PublicCalendar({ city }: PublicCalendarProps) {
             <ChevronLeft className="w-5 h-5" />
           </button>
           <h3 className="text-lg font-semibold">
-            {format(currentMonth, 'MMMM yyyy')}
+            {format(currentMonth, 'MMMM yyyy', { locale: i18n.language === 'it' ? it : enUS })}
           </h3>
           <button
             onClick={handleNextMonth}
@@ -144,7 +155,7 @@ export default function PublicCalendar({ city }: PublicCalendarProps) {
           </button>
         </div>
 
-        {loading && <div className="p-4 text-center text-gray-500">Loading availability...</div>}
+        {loading && <div className="p-4 text-center text-gray-500">{t('calendar.loading')}</div>}
 
         {!loading && (
           <div className="p-4 flex-1 flex flex-col">
@@ -208,16 +219,16 @@ export default function PublicCalendar({ city }: PublicCalendarProps) {
           <div className="flex items-center justify-center h-full p-6 text-center">
             <div className="bg-white p-4 rounded-lg shadow-sm border border-red-100">
               <p className="text-lg font-bold text-gray-800 mb-2">
-                {format(new Date(selectedDate), 'MMM dd, yyyy')}
+                {format(new Date(selectedDate), 'MMM dd, yyyy', { locale: i18n.language === 'it' ? it : enUS })}
               </p>
               <p className="text-red-600 font-medium text-lg">
-                {(workerAvailability[selectedDate] || []).length} SushiMan available in {city} for this day
+                {t('calendar.availableInfo', { count: (workerAvailability[selectedDate] || []).length, city })}
               </p>
             </div>
           </div>
         ) : (
           <div className="flex items-center justify-center h-full text-gray-400 p-6 text-center">
-            <p className="text-sm">Select an available date to see how many SushiMan are ready in your city!</p>
+            <p className="text-sm">{t('calendar.selectDate')}</p>
           </div>
         )}
       </div>

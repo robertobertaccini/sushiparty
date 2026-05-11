@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../lib/api';
 import LocationDropdown from '../components/LocationDropdown';
+import { useTranslation } from 'react-i18next';
 
 export default function Login() {
+  const { t } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,7 +25,7 @@ export default function Login() {
       } else {
         // Validate location is selected for signup
         if (!location) {
-          setError('Location is required for signup');
+          setError(t('auth.locationRequired'));
           return;
         }
         const res = await api.post('/auth/register', { email, password, role: 'client', city: location });
@@ -38,11 +40,11 @@ export default function Login() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center mb-6">{isLogin ? 'Login' : 'Sign Up'}</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">{isLogin ? t('auth.login') : t('auth.signup')}</h2>
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label className="block text-sm font-medium text-gray-700">{t('auth.email')}</label>
             <input
               type="email"
               value={email}
@@ -52,7 +54,7 @@ export default function Login() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label className="block text-sm font-medium text-gray-700">{t('auth.password')}</label>
             <input
               type="password"
               value={password}
@@ -64,13 +66,13 @@ export default function Login() {
           {!isLogin && (
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Location <span className="text-red-500">*</span>
+                {t('auth.location')} <span className="text-red-500">*</span>
               </label>
               <LocationDropdown
                 value={location}
                 onChange={setLocation}
                 allowEmpty
-                emptyLabel="Select your location"
+                emptyLabel={t('auth.locationPlaceholder')}
                 className="w-full mt-1"
               />
             </div>
@@ -79,14 +81,14 @@ export default function Login() {
             type="submit"
             className="w-full py-2 px-4 bg-red-600 text-white rounded hover:bg-red-700 transition"
           >
-            {isLogin ? 'Login' : 'Sign Up'}
+            {isLogin ? t('auth.login') : t('auth.signup')}
           </button>
         </form>
         <button
           onClick={() => setIsLogin(!isLogin)}
           className="w-full mt-4 text-sm text-gray-600 hover:text-red-600"
         >
-          {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Login'}
+          {isLogin ? t('auth.noAccount') : t('auth.hasAccount')}
         </button>
       </div>
     </div>

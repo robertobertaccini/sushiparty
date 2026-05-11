@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const images = [
   "100-2000x1331.jpg",
@@ -25,15 +26,16 @@ const images = [
 ];
 
 export default function Gallery() {
+  const { t } = useTranslation();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">Our Gallery</h1>
+          <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">{t('gallery.title')}</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover the beauty of our sushi creations. A feast for your eyes and taste buds!
+            {t('gallery.subtitle')}
           </p>
         </div>
         
@@ -46,7 +48,7 @@ export default function Gallery() {
             >
               <img 
                 src={`/gallery/${img}`} 
-                alt={`Gallery photo ${idx + 1}`}
+                alt={t('gallery.photoAlt', { index: idx + 1 })}
                 className="w-full h-auto object-cover"
                 loading="lazy"
               />
@@ -72,7 +74,7 @@ export default function Gallery() {
             </button>
             <img 
               src={selectedImage} 
-              alt="Selected gallery image"
+              alt={t('gallery.selectedAlt')}
               className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />

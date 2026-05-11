@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import { ChefHat, ShoppingBag, Home as HomeIcon, Calendar, X } from 'lucide-react';
 import LocationDropdown from '../components/LocationDropdown';
 import PublicCalendar from '../components/PublicCalendar';
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from '../components/LanguageSelector';
 
 export default function Landing() {
+  const { t, i18n } = useTranslation();
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [selectedCity, setSelectedCity] = useState('');
 
@@ -29,19 +32,19 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="bg-red-600 text-white py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">Diventa il cuoco del tuo SushiParty!</h1>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6">{t('landing.hero.title')}</h1>
           <p className="text-xl md:text-2xl mb-8 font-light max-w-3xl mx-auto">
-            Chi ama il sushi lo mangerebbe almeno una volta a settimana! Il sushi è un cibo buono, sano, leggero e anche facile da preparare. Perché non provare a farlo a casa?
+            {t('landing.hero.subtitle1')}
           </p>
           <p className="text-lg mb-10 font-medium">
-            SushiParty organizza serate a tema dove i cuochi siete voi, con l'assistenza di un SushiMan qualificato.
+            {t('landing.hero.subtitle2')}
           </p>
           <div className="flex justify-center gap-4">
             <button
               onClick={() => setShowCalendarModal(true)}
               className="px-8 py-3 bg-white text-red-600 rounded-lg font-bold text-lg hover:bg-gray-100 transition shadow-lg"
             >
-              Inizia Ora
+              {t('landing.hero.cta')}
             </button>
           </div>
         </div>
@@ -50,33 +53,33 @@ export default function Landing() {
       {/* Come Funziona Section */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">Come Funziona?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">{t('landing.howItWorks.title')}</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-red-50 p-8 rounded-xl text-center border border-red-100 shadow-sm hover:shadow-md transition">
               <div className="flex justify-center mb-4">
                 <HomeIcon size={48} className="text-red-500" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-800">Dove si fa? A casa tua!</h3>
+              <h3 className="text-xl font-bold mb-3 text-gray-800">{t('landing.howItWorks.step1.title')}</h3>
               <p className="text-gray-600">
-                Non devi andare in posti lontani per mangiare del buon sushi. Stai comodo a casa tua ed invita qualche amico. Un SushiMan sarà a tua disposizione per tutto l'evento.
+                {t('landing.howItWorks.step1.desc')}
               </p>
             </div>
             <div className="bg-red-50 p-8 rounded-xl text-center border border-red-100 shadow-sm hover:shadow-md transition">
               <div className="flex justify-center mb-4">
                 <ShoppingBag size={48} className="text-red-500" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-800">Chi fa la spesa? SushiParty!</h3>
+              <h3 className="text-xl font-bold mb-3 text-gray-800">{t('landing.howItWorks.step2.title')}</h3>
               <p className="text-gray-600">
-                SushiParty si occupa di acquistare tutti gli ingredienti necessari alla preparazione del sushi. Tutti gli ingredienti vengono tagliati e preparati per consentire l'uso immediato.
+                {t('landing.howItWorks.step2.desc')}
               </p>
             </div>
             <div className="bg-red-50 p-8 rounded-xl text-center border border-red-100 shadow-sm hover:shadow-md transition">
               <div className="flex justify-center mb-4">
                 <ChefHat size={48} className="text-red-500" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-800">Chi prepara il sushi? Tu!</h3>
+              <h3 className="text-xl font-bold mb-3 text-gray-800">{t('landing.howItWorks.step3.title')}</h3>
               <p className="text-gray-600">
-                Nella prima parte dell'evento il SushiMan ti guida passo dopo passo partendo dai pezzi facili. Mentre si mangia il SushiMan prepara anche altri tipi di sushi a propria fantasia.
+                {t('landing.howItWorks.step3.desc')}
               </p>
             </div>
           </div>
@@ -86,13 +89,13 @@ export default function Landing() {
       {/* Occasioni Section */}
       <section className="py-16 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">Le Occasioni Perfette</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">{t('landing.occasions.title')}</h2>
           <div className="grid md:grid-cols-2 gap-6">
             {[
-              { title: "Compleanno a Tema", subtitle: "Tanti sushi-auguri!", desc: "Una bella sorpresa per chi è sushi-addicted.", id: "compleanno-a-tema" },
-              { title: "Festa a Tema", subtitle: "Dress-code Japan", desc: "Condividi la tua passione per il sushi e prova a creare il tuo sushi partendo dalle basi.", id: "festa-a-tema" },
-              { title: "Team Building", subtitle: "Sushi-cucine da incubo", desc: "SushiParty vi catapulta nella catena di produzione del sushi. Quanti pezzi riuscirete a produrre?", id: "team-building" },
-              { title: "Sushi Contest", subtitle: "Mamma guarda cosa ho imparato", desc: "Alla fine del corso gli allievi preparano il sushi per i propri amici e parenti.", id: "sushi-contest" }
+              { title: t('landing.occasions.compleanno.title'), subtitle: t('landing.occasions.compleanno.subtitle'), desc: t('landing.occasions.compleanno.desc'), id: "compleanno-a-tema" },
+              { title: t('landing.occasions.festa.title'), subtitle: t('landing.occasions.festa.subtitle'), desc: t('landing.occasions.festa.desc'), id: "festa-a-tema" },
+              { title: t('landing.occasions.teambuilding.title'), subtitle: t('landing.occasions.teambuilding.subtitle'), desc: t('landing.occasions.teambuilding.desc'), id: "team-building" },
+              { title: t('landing.occasions.contest.title'), subtitle: t('landing.occasions.contest.subtitle'), desc: t('landing.occasions.contest.desc'), id: "sushi-contest" }
             ].map((item, i) => (
               <Link to={`/occasions/${item.id}`} key={i} className="flex bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-red-300 transition-all cursor-pointer group">
                 <div className="mr-4 mt-1"><Calendar className="text-red-500 group-hover:scale-110 transition-transform" size={24} /></div>
@@ -110,9 +113,9 @@ export default function Landing() {
       {/* Il nostro Sushi */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">Il Nostro Sushi</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">{t('landing.ourSushi.title')}</h2>
           <p className="text-center text-gray-600 max-w-3xl mx-auto mb-10">
-            Tutte le foto sono reali, il sushi che vedi è stato fatto in casa. SushiParty porta tutti gli strumenti necessari comprese stuoiette, coltelli ed altri attrezzi che facilitano il lavoro.
+            {t('landing.ourSushi.desc')}
           </p>
           <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
             {sushiGallery.map((sushi, i) => (
@@ -143,9 +146,9 @@ export default function Landing() {
             </div>
           )}
           <div className="mt-8 bg-green-50 border border-green-200 p-6 rounded-lg text-center">
-            <h3 className="text-xl font-bold text-green-800 mb-2">Sushi Party è anche VEG!</h3>
+            <h3 className="text-xl font-bold text-green-800 mb-2">{t('landing.ourSushi.vegTitle')}</h3>
             <p className="text-green-700">
-              Si possono preparare deliziosi pezzi di sushi senza usare pesce o altri alimenti di origine animale. Mostriamo anche a chi non mangia pesce che può gustare il sushi in centinaia di ricette vegetariane.
+              {t('landing.ourSushi.vegDesc')}
             </p>
           </div>
         </div>
@@ -154,14 +157,14 @@ export default function Landing() {
       {/* Come si prepara */}
       <section className="py-16 px-4 bg-red-600 text-white">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">I 5 Passi del SushiParty</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{t('landing.steps.title')}</h2>
           <div className="space-y-6">
             {[
-              { title: "Stendi il riso", desc: "Prendi un'alga e crea uno strato di riso. Questa è la base del maki." },
-              { title: "Scegli gli ingredienti", desc: "Combina come vuoi gli ingredienti ma fai attenzione a non riempire troppo il maki altrimenti non si chiude." },
-              { title: "Arrotola", desc: "Il segreto per arrotolare bene è fare la giusta pressione evitando che gli ingredienti escano dai lati." },
-              { title: "Taglia", desc: "Taglia il rotolo di sushi in 6 o 8 pezzi." },
-              { title: "Impiatta", desc: "L'impiattamento valorizza il piatto ma quello che vi colpirà è il gusto." }
+              { title: t('landing.steps.step1.title'), desc: t('landing.steps.step1.desc') },
+              { title: t('landing.steps.step2.title'), desc: t('landing.steps.step2.desc') },
+              { title: t('landing.steps.step3.title'), desc: t('landing.steps.step3.desc') },
+              { title: t('landing.steps.step4.title'), desc: t('landing.steps.step4.desc') },
+              { title: t('landing.steps.step5.title'), desc: t('landing.steps.step5.desc') }
             ].map((step, i) => (
               <div key={i} className="flex items-start">
                 <div className="flex-shrink-0 w-10 h-10 bg-white text-red-600 rounded-full flex items-center justify-center font-bold text-xl mr-4">
@@ -179,15 +182,14 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-8 text-center text-sm">
-        <p>Copyright © {new Date().getFullYear()} Roberto Bertaccini | SushiParty</p>
+        <p>{t('common.copyright', { year: new Date().getFullYear() })}</p>
       </footer>
 
-      {/* Calendar Modal */}
       {showCalendarModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg w-full max-w-4xl shadow-2xl overflow-hidden relative flex flex-col max-h-[90vh]">
             <div className="flex justify-between items-center p-4 border-b bg-gray-50">
-              <h3 className="text-xl font-bold text-gray-800">Verifica Disponibilità</h3>
+              <h3 className="text-xl font-bold text-gray-800">{t('landing.calendarModal.title')}</h3>
               <button 
                 onClick={() => setShowCalendarModal(false)}
                 className="text-gray-500 hover:text-gray-700 hover:bg-gray-200 p-1 rounded-full transition"
@@ -199,13 +201,13 @@ export default function Landing() {
             <div className="p-6 overflow-y-auto">
               <div className="mb-6 max-w-md mx-auto">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Seleziona la tua città
+                  {t('landing.calendarModal.selectCity')}
                 </label>
                 <LocationDropdown
                   value={selectedCity}
                   onChange={setSelectedCity}
                   allowEmpty
-                  emptyLabel="Scegli una città..."
+                  emptyLabel={t('landing.calendarModal.placeholder')}
                   className="w-full"
                 />
               </div>
@@ -214,7 +216,7 @@ export default function Landing() {
                 <PublicCalendar city={selectedCity} />
               ) : (
                 <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-gray-500">Seleziona una città per visualizzare il calendario delle disponibilità.</p>
+                  <p className="text-gray-500">{t('landing.calendarModal.noCitySelected')}</p>
                 </div>
               )}
             </div>
@@ -224,7 +226,7 @@ export default function Landing() {
                 to="/login"
                 className="px-6 py-2 bg-red-600 text-white rounded font-medium hover:bg-red-700 transition"
               >
-                Prenota Ora
+                {t('landing.calendarModal.bookNow')}
               </Link>
             </div>
           </div>
