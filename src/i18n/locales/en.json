@@ -1,0 +1,236 @@
+{
+  "landing": {
+    "hero": {
+      "title": "Become the chef of your SushiParty!",
+      "subtitle1": "Those who love sushi would eat it at least once a week! Sushi is good, healthy, light, and easy to prepare. Why not try making it at home?",
+      "subtitle2": "SushiParty organizes themed evenings where you are the chefs, with the assistance of a qualified SushiMan.",
+      "cta": "Start Now"
+    },
+    "howItWorks": {
+      "title": "How It Works?",
+      "step1": {
+        "title": "Where is it held? At your home!",
+        "desc": "You don't have to go to distant places to eat good sushi. Stay comfortable at home and invite some friends. A SushiMan will be at your disposal for the entire event."
+      },
+      "step2": {
+        "title": "Who does the shopping? SushiParty!",
+        "desc": "SushiParty takes care of purchasing all the ingredients needed for sushi preparation. All ingredients are cut and prepared for immediate use."
+      },
+      "step3": {
+        "title": "Who prepares the sushi? You!",
+        "desc": "In the first part of the event, the SushiMan guides you step by step starting from the easy pieces. While you eat, the SushiMan also prepares other types of sushi according to their imagination."
+      }
+    },
+    "occasions": {
+      "title": "The Perfect Occasions",
+      "compleanno": {
+        "title": "Themed Birthday",
+        "subtitle": "Many sushi-wishes!",
+        "desc": "A nice surprise for those who are sushi-addicted."
+      },
+      "festa": {
+        "title": "Themed Party",
+        "subtitle": "Japan dress-code",
+        "desc": "Share your passion for sushi and try creating your own sushi starting from the basics."
+      },
+      "teambuilding": {
+        "title": "Team Building",
+        "subtitle": "Sushi-kitchen nightmares",
+        "desc": "SushiParty thrusts you into the sushi production chain. How many pieces will you manage to produce?"
+      },
+      "contest": {
+        "title": "Sushi Contest",
+        "subtitle": "Mom look what I learned",
+        "desc": "At the end of the course, students prepare sushi for their friends and relatives."
+      }
+    },
+    "ourSushi": {
+      "title": "Our Sushi",
+      "desc": "All photos are real, the sushi you see was homemade. SushiParty brings all the necessary tools including mats, knives, and other tools that facilitate the work.",
+      "vegTitle": "Sushi Party is also VEG!",
+      "vegDesc": "Delicious pieces of sushi can be prepared without using fish or other animal products. We also show those who don't eat fish that they can enjoy sushi in hundreds of vegetarian recipes."
+    },
+    "steps": {
+      "title": "The 5 Steps of SushiParty",
+      "step1": { "title": "Spread the rice", "desc": "Take a seaweed and create a layer of rice. This is the base of the maki." },
+      "step2": { "title": "Choose the ingredients", "desc": "Combine ingredients as you like but be careful not to overfill the maki otherwise it won't close." },
+      "step3": { "title": "Roll", "desc": "The secret to rolling well is to apply the right pressure while preventing ingredients from coming out the sides." },
+      "step4": { "title": "Cut", "desc": "Cut the sushi roll into 6 or 8 pieces." },
+      "step5": { "title": "Plate", "desc": "Plating enhances the dish, but what will strike you is the taste." }
+    },
+    "calendarModal": {
+      "title": "Check Availability",
+      "selectCity": "Select your city",
+      "placeholder": "Choose a city...",
+      "noCitySelected": "Select a city to view the availability calendar.",
+      "bookNow": "Book Now"
+    }
+  },
+  "reservation": {
+    "title": "Reserve your Sushiparty",
+    "step1": {
+      "city": "City",
+      "noCity": "No city set",
+      "selectDate": "Select Date & View Available SUSHIMAN"
+    },
+    "step2": {
+      "title": "Available SUSHIMAN in {{city}} for {{date}}",
+      "noWorkers": "No sushiman available for this date/location.",
+      "compensation": "€{{amount}} default compensation",
+      "select": "Select"
+    },
+    "step3": {
+      "title": "Event Details",
+      "participants": "Number of Participants",
+      "additionalServices": "Additional Services",
+      "summary": {
+        "worker": "Sushiman",
+        "date": "Date",
+        "location": "Location",
+        "participantsCost": "Participants Cost",
+        "workerCost": "Sushiman Cost",
+        "additionalServices": "Additional Services",
+        "totalEstimate": "Total Estimate"
+      },
+      "privacy": "I understand and agree that my contact number will be shared with the sushiman (<strong>{{name}}</strong>) to coordinate the party setup at my location.",
+      "proceed": "Proceed to Payment (50%)",
+      "processing": "Processing..."
+    },
+    "step4": {
+      "title": "Secure Payment",
+      "desc": "Please complete the 50% deposit to confirm your booking.",
+      "totalAmount": "Total Amount",
+      "depositToPay": "Deposit to Pay (50%)",
+      "remainingBalance": "Remaining balance of <strong>€{{amount}}</strong> to be paid on <strong>{{date}}</strong>.",
+      "cardNumber": "Card Number",
+      "expiryDate": "Expiry Date",
+      "cvc": "CVC",
+      "payNow": "Pay €{{amount}} Now",
+      "processing": "Processing Payment...",
+      "secureNotice": "Your payment is secure and encrypted. This is a demo stub implementation."
+    },
+    "step5": {
+      "title": "Booking Confirmed!",
+      "desc": "Your SushiParty has been successfully reserved and the deposit has been paid.",
+      "detailsTitle": "Booking Details",
+      "bookingId": "Booking ID",
+      "date": "Date",
+      "worker": "Sushiman",
+      "totalAmount": "Total Amount",
+      "depositPaid": "Deposit Paid",
+      "remainingBalance": "Remaining Balance",
+      "balanceNotice": "* The remaining balance is due in person on <strong>{{date}}</strong>.",
+      "qrTitle": "Your Shareable QR Code",
+      "qrNotice": "Anyone with this QR code can view your reservation details.",
+      "anotherBooking": "Make another booking"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}!",
+    "role": "Role: {{role}}",
+    "loading": "Loading your reservations...",
+    "error": "Error: {{message}}",
+    "noReservations": "No reservations yet",
+    "makeReservation": "Make a Reservation",
+    "title": "Your Reservations",
+    "reservationId": "Reservation ID",
+    "date": "Date",
+    "city": "City",
+    "participants": "Participants",
+    "totalAmount": "Total Amount",
+    "status": "Status",
+    "qrTitle": "Shareable QR Code",
+    "share": "Share",
+    "makeAnother": "Make Another Reservation",
+    "shareText": "Check out my Sushi Party reservation! Date: {{date}}, Participants: {{count}}",
+    "copied": "Reservation link copied to clipboard!",
+    "statuses": {
+      "confirmed": "Confirmed",
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "location": "Location",
+    "locationRequired": "Location is required for signup",
+    "locationPlaceholder": "Select your location",
+    "noAccount": "Don't have an account? Sign up",
+    "hasAccount": "Already have an account? Login"
+  },
+  "gallery": {
+    "title": "Our Gallery",
+    "subtitle": "Discover the beauty of our sushi creations. A feast for your eyes and taste buds!",
+    "photoAlt": "Gallery photo {{index}}",
+    "selectedAlt": "Selected gallery image"
+  },
+  "occasion": {
+    "notFound": "Occasion not found",
+    "backToHome": "Back to home",
+    "back": "Go back",
+    "bookNow": "Book this Experience Now",
+    "items": {
+      "compleanno-a-tema": {
+        "longDesc": "Surprise your friends and make your birthday unforgettable! A unique experience to celebrate surrounded by rice, fresh fish, and joy. Create your favorite maki and toast to your special day with a Japanese touch. Perfect for sushi lovers of all ages."
+      },
+      "festa-a-tema": {
+        "longDesc": "Immerse yourself in the atmosphere of Japan! Whether it's an evening with friends or an informal meeting, dress up and discover the secrets of sushi preparation. Our SushiMan will guide you from the first steps to the creation of delicious dishes in a fun and relaxed environment."
+      },
+      "team-building": {
+        "longDesc": "Invite your sushi-loving colleagues to an exciting cooking challenge! Our corporate format transforms the kitchen into a real sushi maki production chain. Collaboration, coordination, and team spirit will be fundamental to winning the challenge. A perfect way to consolidate the group and strengthen corporate relationships in a tasty and fun way."
+      },
+      "sushi-contest": {
+        "longDesc": "A real friendly culinary competition! After learning the basic techniques from our SushiMan, put yourself to the test by creating original compositions. Who will prepare the most beautiful and tasty dish? Your friends and relatives will act as judges to crown the champion of the evening."
+      }
+    }
+  },
+  "calendar": {
+    "loading": "Loading availability...",
+    "availableInfo": "{{count}} SushiMan available in {{city}} for this day",
+    "selectDate": "Select an available date to see how many SushiMan are ready in your city!",
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    }
+  },
+  "workerCalendar": {
+    "availableInfo": "{{count}} worker(s) available",
+    "goWithSelection": "Go with sushiman selection",
+    "noWorkers": "No workers available",
+    "selectDate": "Select a date to view available workers",
+    "modal": {
+      "title": "Reservation Details",
+      "date": "Date",
+      "city": "City",
+      "participants": "Participants",
+      "status": "Status",
+      "totalAmount": "Total Amount",
+      "close": "Close"
+    }
+  },
+  "common": {
+    "copyright": "Copyright © {{year}} Roberto Bertaccini | SushiParty",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "navbar": {
+      "gallery": "Gallery",
+      "dashboard": "Dashboard",
+      "bookNow": "Book Now",
+      "mySchedule": "My Schedule",
+      "admin": "Admin",
+      "logout": "Logout",
+      "login": "Login"
+    }
+  }
+}

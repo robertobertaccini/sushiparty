@@ -1,0 +1,236 @@
+{
+  "landing": {
+    "hero": {
+      "title": "Diventa il cuoco del tuo SushiParty!",
+      "subtitle1": "Chi ama il sushi lo mangerebbe almeno una volta a settimana! Il sushi è un cibo buono, sano, leggero e anche facile da preparare. Perché non provare a farlo a casa?",
+      "subtitle2": "SushiParty organizza serate a tema dove i cuochi siete voi, con l'assistenza di un SushiMan qualificato.",
+      "cta": "Inizia Ora"
+    },
+    "howItWorks": {
+      "title": "Come Funziona?",
+      "step1": {
+        "title": "Dove si fa? A casa tua!",
+        "desc": "Non devi andare in posti lontani per mangiare del buon sushi. Stai comodo a casa tua ed invita qualche amico. Un SushiMan sarà a tua disposizione per tutto l'evento."
+      },
+      "step2": {
+        "title": "Chi fa la spesa? SushiParty!",
+        "desc": "SushiParty si occupa di acquistare tutti gli ingredienti necessari alla preparazione del sushi. Tutti gli ingredienti vengono tagliati e preparati per consentire l'uso immediato."
+      },
+      "step3": {
+        "title": "Chi prepara il sushi? Tu!",
+        "desc": "Nella prima parte dell'evento il SushiMan ti guida passo dopo passo partendo dai pezzi facili. Mentre si mangia il SushiMan prepara anche altri tipi di sushi a propria fantasia."
+      }
+    },
+    "occasions": {
+      "title": "Le Occasioni Perfette",
+      "compleanno": {
+        "title": "Compleanno a Tema",
+        "subtitle": "Tanti sushi-auguri!",
+        "desc": "Una bella sorpresa per chi è sushi-addicted."
+      },
+      "festa": {
+        "title": "Festa a Tema",
+        "subtitle": "Dress-code Japan",
+        "desc": "Condividi la tua passione per il sushi e prova a creare il tuo sushi partendo dalle basi."
+      },
+      "teambuilding": {
+        "title": "Team Building",
+        "subtitle": "Sushi-cucine da incubo",
+        "desc": "SushiParty vi catapulta nella catena di produzione del sushi. Quanti pezzi riuscirete a produrre?"
+      },
+      "contest": {
+        "title": "Sushi Contest",
+        "subtitle": "Mamma guarda cosa ho imparato",
+        "desc": "Alla fine del corso gli allievi preparano il sushi per i propri amici e parenti."
+      }
+    },
+    "ourSushi": {
+      "title": "Il Nostro Sushi",
+      "desc": "Tutte le foto sono reali, il sushi che vedi è stato fatto in casa. SushiParty porta tutti gli strumenti necessari comprese stuoiette, coltelli ed altri attrezzi che facilitano il lavoro.",
+      "vegTitle": "Sushi Party è anche VEG!",
+      "vegDesc": "Si possono preparare deliziosi pezzi di sushi senza usare pesce o altri alimenti di origine animale. Mostriamo anche a chi non mangia pesce che può gustare il sushi in centinaia di ricette vegetariane."
+    },
+    "steps": {
+      "title": "I 5 Passi del SushiParty",
+      "step1": { "title": "Stendi il riso", "desc": "Prendi un'alga e crea uno strato di riso. Questa è la base del maki." },
+      "step2": { "title": "Scegli gli ingredienti", "desc": "Combina come vuoi gli ingredienti ma fai attenzione a non riempire troppo il maki altrimenti non si chiude." },
+      "step3": { "title": "Arrotola", "desc": "Il segreto per arrotolare bene è fare la giusta pressione evitando che gli ingredienti escano dai lati." },
+      "step4": { "title": "Taglia", "desc": "Taglia il rotolo di sushi in 6 o 8 pezzi." },
+      "step5": { "title": "Impiatta", "desc": "L'impiattamento valorizza il piatto ma quello che vi colpirà è il gusto." }
+    },
+    "calendarModal": {
+      "title": "Verifica Disponibilità",
+      "selectCity": "Seleziona la tua città",
+      "placeholder": "Scegli una città...",
+      "noCitySelected": "Seleziona una città per visualizzare il calendario delle disponibilità.",
+      "bookNow": "Prenota Ora"
+    }
+  },
+  "reservation": {
+    "title": "Prenota il tuo Sushiparty",
+    "step1": {
+      "city": "Città",
+      "noCity": "Nessuna città impostata",
+      "selectDate": "Seleziona Data e Visualizza SUSHIMAN Disponibili"
+    },
+    "step2": {
+      "title": "SUSHIMAN disponibili a {{city}} il {{date}}",
+      "noWorkers": "Nessun sushiman disponibile per questa data/località.",
+      "compensation": "€{{amount}} compenso base",
+      "select": "Seleziona"
+    },
+    "step3": {
+      "title": "Dettagli Evento",
+      "participants": "Numero di Partecipanti",
+      "additionalServices": "Servizi Aggiuntivi",
+      "summary": {
+        "worker": "Sushiman",
+        "date": "Data",
+        "location": "Località",
+        "participantsCost": "Costo Partecipanti",
+        "workerCost": "Costo Sushiman",
+        "additionalServices": "Servizi Aggiuntivi",
+        "totalEstimate": "Stima Totale"
+      },
+      "privacy": "Capisco e accetto che il mio numero di contatto sarà condiviso con il sushiman (<strong>{{name}}</strong>) per coordinare l'allestimento della festa presso la mia sede.",
+      "proceed": "Procedi al Pagamento (50%)",
+      "processing": "Elaborazione..."
+    },
+    "step4": {
+      "title": "Pagamento Sicuro",
+      "desc": "Completa il deposito del 50% per confermare la tua prenotazione.",
+      "totalAmount": "Importo Totale",
+      "depositToPay": "Deposito da Pagare (50%)",
+      "remainingBalance": "Il saldo rimanente di <strong>€{{amount}}</strong> dovrà essere pagato il <strong>{{date}}</strong>.",
+      "cardNumber": "Numero Carta",
+      "expiryDate": "Data Scadenza",
+      "cvc": "CVC",
+      "payNow": "Paga €{{amount}} Ora",
+      "processing": "Elaborazione Pagamento...",
+      "secureNotice": "Il tuo pagamento è sicuro e crittografato. Questa è un'implementazione di test."
+    },
+    "step5": {
+      "title": "Prenotazione Confermata!",
+      "desc": "Il tuo SushiParty è stato prenotato con successo e il deposito è stato pagato.",
+      "detailsTitle": "Dettagli Prenotazione",
+      "bookingId": "ID Prenotazione",
+      "date": "Data",
+      "worker": "Sushiman",
+      "totalAmount": "Importo Totale",
+      "depositPaid": "Deposito Pagato",
+      "remainingBalance": "Saldo Rimanente",
+      "balanceNotice": "* Il saldo rimanente deve essere pagato di persona il <strong>{{date}}</strong>.",
+      "qrTitle": "Il tuo QR Code da condividere",
+      "qrNotice": "Chiunque abbia questo QR code può visualizzare i dettagli della tua prenotazione.",
+      "anotherBooking": "Effettua un'altra prenotazione"
+    }
+  },
+  "dashboard": {
+    "welcome": "Benvenuto, {{name}}!",
+    "role": "Ruolo: {{role}}",
+    "loading": "Caricamento prenotazioni...",
+    "error": "Errore: {{message}}",
+    "noReservations": "Nessuna prenotazione ancora",
+    "makeReservation": "Effettua una Prenotazione",
+    "title": "Le tue Prenotazioni",
+    "reservationId": "ID Prenotazione",
+    "date": "Data",
+    "city": "Città",
+    "participants": "Partecipanti",
+    "totalAmount": "Importo Totale",
+    "status": "Stato",
+    "qrTitle": "QR Code Condivisibile",
+    "share": "Condividi",
+    "makeAnother": "Effettua un'altra prenotazione",
+    "shareText": "Guarda la mia prenotazione Sushi Party! Data: {{date}}, Partecipanti: {{count}}",
+    "copied": "Link della prenotazione copiato negli appunti!",
+    "statuses": {
+      "confirmed": "Confermata",
+      "pending": "In attesa",
+      "completed": "Completata",
+      "cancelled": "Annullata"
+    }
+  },
+  "auth": {
+    "login": "Accedi",
+    "signup": "Registrati",
+    "email": "Email",
+    "password": "Password",
+    "location": "Località",
+    "locationRequired": "La località è richiesta per la registrazione",
+    "locationPlaceholder": "Seleziona la tua località",
+    "noAccount": "Non hai un account? Registrati",
+    "hasAccount": "Hai già un account? Accedi"
+  },
+  "gallery": {
+    "title": "La Nostra Galleria",
+    "subtitle": "Scopri la bellezza delle nostre creazioni sushi. Una festa per i tuoi occhi e le tue papille gustative!",
+    "photoAlt": "Foto galleria {{index}}",
+    "selectedAlt": "Immagine galleria selezionata"
+  },
+  "occasion": {
+    "notFound": "Occasione non trovata",
+    "backToHome": "Torna alla home",
+    "back": "Torna indietro",
+    "bookNow": "Prenota Ora questa Esperienza",
+    "items": {
+      "compleanno-a-tema": {
+        "longDesc": "Sorprendi i tuoi amici e rendi il tuo compleanno indimenticabile! Un'esperienza unica in cui festeggiare circondati da riso, pesce fresco e allegria. Crea i tuoi maki preferiti e brinda al tuo giorno speciale con un tocco giapponese. Perfetto per gli amanti del sushi di tutte le età."
+      },
+      "festa-a-tema": {
+        "longDesc": "Immergiti nell'atmosfera del Giappone! Che sia una serata tra amici o un incontro informale, vestitevi a tema e scoprite i segreti della preparazione del sushi. Il nostro SushiMan vi guiderà dai primi passi fino alla creazione di piatti deliziosi in un ambiente divertente e rilassato."
+      },
+      "team-building": {
+        "longDesc": "Invita i tuoi colleghi che amano il sushi a un'appassionante sfida ai fornelli! Il nostro format per le aziende trasforma la cucina in una vera e propria catena di produzione del sushi maki. La collaborazione, la coordinazione e lo spirito di squadra saranno fondamentali per vincere la sfida. Un modo perfetto per consolidare il gruppo e rafforzare le relazioni aziendali in modo gustoso e divertente."
+      },
+      "sushi-contest": {
+        "longDesc": "Una vera e propria competizione culinaria amichevole! Dopo aver appreso le tecniche di base dal nostro SushiMan, mettetevi alla prova creando composizioni originali. Chi preparerà il piatto più bello e buono? I vostri amici e parenti faranno da giudici per incoronare il campione della serata."
+      }
+    }
+  },
+  "calendar": {
+    "loading": "Caricamento disponibilità...",
+    "availableInfo": "{{count}} SushiMan disponibili a {{city}} per questo giorno",
+    "selectDate": "Seleziona una data disponibile per vedere quanti SushiMan sono pronti nella tua città!",
+    "days": {
+      "sun": "Dom",
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mer",
+      "thu": "Gio",
+      "fri": "Ven",
+      "sat": "Sab"
+    }
+  },
+  "workerCalendar": {
+    "availableInfo": "{{count}} sushiman disponibile/i",
+    "goWithSelection": "Vai alla selezione sushiman",
+    "noWorkers": "Nessun sushiman disponibile",
+    "selectDate": "Seleziona una data per vedere i sushiman disponibili",
+    "modal": {
+      "title": "Dettagli Prenotazione",
+      "date": "Data",
+      "city": "Città",
+      "participants": "Partecipanti",
+      "status": "Stato",
+      "totalAmount": "Importo Totale",
+      "close": "Chiudi"
+    }
+  },
+  "common": {
+    "copyright": "Copyright © {{year}} Roberto Bertaccini | SushiParty",
+    "back": "Indietro",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "loading": "Caricamento...",
+    "navbar": {
+      "gallery": "Galleria",
+      "dashboard": "Dashboard",
+      "bookNow": "Prenota Ora",
+      "mySchedule": "I Miei Impegni",
+      "admin": "Admin",
+      "logout": "Esci",
+      "login": "Accedi"
+    }
+  }
+}

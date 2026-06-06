@@ -43,7 +43,7 @@ console.log('Database initialized');
 
 // AUTH ROUTES
 app.post('/api/auth/register', (req, res) => {
-  const { email, password, role, displayName, city } = req.body;
+  const { email, password, role, displayName, city, defaultCompensation } = req.body;
   const uid = generateId();
 
   // Check if user exists
@@ -53,11 +53,11 @@ app.post('/api/auth/register', (req, res) => {
     }
 
     db.run(
-      'INSERT INTO users (uid, email, password, role, displayName, city, availability) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [uid, email, password, role || 'client', displayName || email.split('@')[0], city || null, JSON.stringify([])],
+      'INSERT INTO users (uid, email, password, role, displayName, city, availability, defaultCompensation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [uid, email, password, role || 'client', displayName || email.split('@')[0], city || null, JSON.stringify([]), defaultCompensation || null],
       (err) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ user: { uid, email, role: role || 'client', displayName, city } });
+        res.json({ user: { uid, email, role: role || 'client', displayName, city, defaultCompensation: defaultCompensation || null } });
       }
     );
   });
@@ -80,7 +80,7 @@ app.post('/api/auth/login', (req, res) => {
 // USERS ROUTE
 app.get('/api/users', (req, res) => {
   const { role, city } = req.query;
-  let query = 'SELECT uid, email, role, displayName, city, availability, photoURL FROM users WHERE 1=1';
+  let query = 'SELECT uid, email, role, displayName, city, availability, photoURL, defaultCompensation FROM users WHERE 1=1';
   let params = [];
 
   if (role) {
@@ -162,6 +162,14 @@ app.put('/api/events/:id', (req, res) => {
   );
 });
 
+app.delete('/api/events/:id', (req, res) => {
+  db.run('DELETE FROM events WHERE eventId = ?', [req.params.id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: 'Event not found' });
+    res.json({ success: true });
+  });
+});
+
 // MESSAGES ROUTES
 app.get('/api/messages/:eventId', (req, res) => {
   db.all('SELECT * FROM messages WHERE eventId = ? ORDER BY createdAt ASC', [req.params.eventId], (err, rows) => {
@@ -203,6 +211,26 @@ app.get('/api/submissions/:eventId', (req, res) => {
   });
 });
 
+// SETTINGS ROUTES
+app.get('/api/settings', (req, res) => {
+  db.get('SELECT * FROM settings WHERE id = 1', [], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(row || { minParticipants: 2, maxParticipants: 20, reservationDelayDays: 1 });
+  });
+});
+
+app.put('/api/settings', (req, res) => {
+  const { minParticipants, maxParticipants, reservationDelayDays } = req.body;
+  db.run(
+    'UPDATE settings SET minParticipants = ?, maxParticipants = ?, reservationDelayDays = ? WHERE id = 1',
+    [minParticipants, maxParticipants, reservationDelayDays],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true });
+    }
+  );
+});
+
 // ADMIN DB BROWSER ROUTE
 app.get('/api/admin/db/:table', (req, res) => {
   const allowedTables = ['users', 'events', 'messages', 'submissions'];
@@ -215,12 +243,42 @@ app.get('/api/admin/db/:table', (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
+  
+  const role = req.query.role ? String(req.query.role).trim() : null;
+  const city = req.query.city ? String(req.query.city).trim() : null;
+  
+  console.log(`[AdminDB] Table: ${table}, Role: "${role}", City: "${city}", Page: ${page}`);
 
-  db.get(`SELECT COUNT(*) as count FROM ${table}`, [], (err, countRow) => {
-    if (err) return res.status(500).json({ error: err.message });
+  let whereClause = 'WHERE 1=1';
+  let params = [];
 
-    db.all(`SELECT * FROM ${table} LIMIT ? OFFSET ?`, [limit, offset], (err, rows) => {
-      if (err) return res.status(500).json({ error: err.message });
+  if (table === 'users' || table === 'events') {
+    if (role && role !== '' && table === 'users') {
+      whereClause += ' AND role = ?';
+      params.push(role);
+    }
+    if (city && city !== '') {
+      whereClause += ' AND city = ?';
+      params.push(city);
+    }
+  }
+
+  const countSql = `SELECT COUNT(*) as count FROM ${table} ${whereClause}`;
+  db.get(countSql, params, (err, countRow) => {
+    if (err) {
+        console.error('[AdminDB] Count Error:', err.message);
+        return res.status(500).json({ error: err.message });
+    }
+
+    const selectSql = `SELECT * FROM ${table} ${whereClause} LIMIT ? OFFSET ?`;
+    const selectParams = [...params, limit, offset];
+    console.log(`[AdminDB] Query: ${selectSql} | Params: ${JSON.stringify(selectParams)}`);
+
+    db.all(selectSql, selectParams, (err, rows) => {
+      if (err) {
+          console.error('[AdminDB] Select Error:', err.message);
+          return res.status(500).json({ error: err.message });
+      }
 
       res.json({
         total: countRow.count,
@@ -253,6 +311,90 @@ app.post('/api/upload', upload.single('photo'), (req, res) => {
   } else {
      res.json({ photoURL });
   }
+});
+
+
+app.put('/api/admin/db/:table/:id', (req, res) => {
+  const allowedTables = ['users', 'events', 'messages', 'submissions'];
+  const table = req.params.table;
+  const id = req.params.id;
+  
+  if (!allowedTables.includes(table)) {
+    return res.status(400).json({ error: 'Invalid table name' });
+  }
+  
+  const pks = {
+    users: 'uid',
+    events: 'eventId',
+    messages: 'messageId',
+    submissions: 'photoId'
+  };
+  
+  const pk = pks[table];
+  
+  const updates = [];
+  const values = [];
+  for (const [key, value] of Object.entries(req.body)) {
+    if (key !== pk) {
+      updates.push(`${key} = ?`);
+      values.push(value);
+    }
+  }
+  
+  if (updates.length === 0) {
+    return res.json({ success: true });
+  }
+  
+  values.push(id);
+  const sql = `UPDATE ${table} SET ${updates.join(', ')} WHERE ${pk} = ?`;
+  
+  db.run(sql, values, function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, changes: this.changes });
+  });
+});
+
+
+// PAYMENT STUB
+app.post('/api/payment', (req, res) => {
+  const { eventId, amount } = req.body;
+  console.log(`[Payment] Processing payment for event ${eventId}, amount ${amount}`);
+  
+  // Simulate processing time
+  setTimeout(() => {
+    // Stub implementation: always OK
+    db.run(
+      'UPDATE events SET status = ?, paidAmount = ? WHERE eventId = ?',
+      ['confirmed', amount, eventId],
+      (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, transactionId: generateId() });
+      }
+    );
+  }, 1000);
+});
+
+app.put('/api/users/:uid', (req, res) => {
+  const uid = req.params.uid;
+  const updates = [];
+  const values = [];
+  
+  for (const [key, value] of Object.entries(req.body)) {
+    updates.push(`${key} = ?`);
+    values.push(typeof value === 'object' ? JSON.stringify(value) : value);
+  }
+  
+  if (updates.length === 0) {
+    return res.json({ success: true });
+  }
+  
+  values.push(uid);
+  const sql = `UPDATE users SET ${updates.join(', ')} WHERE uid = ?`;
+  
+  db.run(sql, values, function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true, changes: this.changes });
+  });
 });
 
 app.listen(PORT, () => {

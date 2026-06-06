@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3001/api';
+const API_URL = `http://${window.location.hostname}:3001/api`;
 
 export const api = {
   get: async (endpoint: string) => {
@@ -24,6 +24,14 @@ export const api = {
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || `Failed to PUT ${endpoint}`);
+    return result;
+  },
+  delete: async (endpoint: string) => {
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      method: 'DELETE'
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || `Failed to DELETE ${endpoint}`);
     return result;
   },
   upload: async (endpoint: string, formData: FormData) => {

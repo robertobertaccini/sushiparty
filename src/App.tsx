@@ -1,11 +1,16 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Login from './pages/Login';
+import Home from './pages/Home';
+import Landing from './pages/Landing';
 import Reservation from './pages/Reservation';
 import EventDetails from './pages/EventDetails';
 import WorkerDashboard from './pages/WorkerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminDbBrowser from './pages/AdminDbBrowser';
+import AdminConfiguration from './pages/AdminConfiguration';
+import Gallery from './pages/Gallery';
+import Occasion from './pages/Occasion';
 import Navbar from './components/Navbar';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -23,7 +28,10 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={
+            <Route path="/" element={<Landing />} />
+            <Route path="/occasions/:id" element={<Occasion />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Home />
               </ProtectedRoute>
@@ -48,6 +56,11 @@ function App() {
                 <AdminDashboard />
               </ProtectedRoute>
             } />
+            <Route path="/admin/config" element={
+              <ProtectedRoute>
+                <AdminConfiguration />
+              </ProtectedRoute>
+            } />
             <Route path="/admin/db" element={
               <ProtectedRoute>
                 <AdminDbBrowser />
@@ -57,17 +70,6 @@ function App() {
         </div>
       </BrowserRouter>
     </AuthProvider>
-  );
-}
-
-function Home() {
-  const { profile } = useAuth();
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-bold text-red-600">Sushiparty</h1>
-      <p className="mt-4 text-gray-600">Welcome, {profile?.displayName || 'User'}!</p>
-      <p className="text-sm text-gray-500">Role: {profile?.role}</p>
-    </div>
   );
 }
 

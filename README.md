@@ -1,3 +1,10 @@
+### Sushi Party ###
+
+Sushi Party is an application for my omonimous business to organize and manage sushi-based cooking lessons. The application allows you to create events, invite participants, and manage payments. 
+
+More info on <a href="http://www.sushiparty.it">http://www.sushiparty.it</a>
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
