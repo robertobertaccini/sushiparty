@@ -15,17 +15,26 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+const galleryDir = path.resolve(__dirname, './gallery_uploads');
+if (!fs.existsSync(galleryDir)) {
+  fs.mkdirSync(galleryDir, { recursive: true });
+}
+
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+// In produzione (Elastic Beanstalk) impostare SERVER_URL all'URL pubblico del backend
+// es. https://api.sushiparty.com
+const SERVER_URL = process.env.SERVER_URL || `http://localhost:${PORT}`;
 
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
+app.use('/gallery_uploads', express.static(galleryDir));
 
 // Helper for generating IDs
 const generateId = () => Math.random().toString(36).substring(2, 15);
 
-// Multer setup
+// Multer setup — profile photos / event submissions
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadsDir)
@@ -36,6 +45,26 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage: storage });
+
+// Multer setup — gallery batch upload
+const galleryStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, galleryDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const galleryUpload = multer({
+  storage: galleryStorage,
+  fileFilter: (req, file, cb) => {
+    const allowed = /jpeg|jpg|png|webp|gif/;
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.test(ext)) cb(null, true);
+    else cb(new Error('Solo immagini consentite (jpg, png, webp, gif)'));
+  }
+});
 
 // Initialize database
 await initDb();
@@ -293,7 +322,7 @@ app.post('/api/upload', upload.single('photo'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
-  const photoURL = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+  const photoURL = `${SERVER_URL}/uploads/${req.file.filename}`;
 
   const eventId = req.body.eventId;
   if (eventId) {
@@ -397,6 +426,70 @@ app.put('/api/users/:uid', (req, res) => {
   });
 });
 
+// GALLERY ROUTES
+// GET all gallery photos (newest first)
+app.get('/api/gallery', (req, res) => {
+  db.all('SELECT * FROM gallery_photos ORDER BY uploadedAt DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
+// POST batch: accepts multiple files under field name "photos"
+app.post('/api/gallery/batch', galleryUpload.array('photos', 100), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: 'Nessun file caricato' });
+  }
+
+  const caption = req.body.caption || '';
+  const uploadedAt = new Date().toISOString();
+  const inserted = [];
+  let pending = req.files.length;
+
+  req.files.forEach((file) => {
+    const photoId = generateId();
+    const photoURL = `${SERVER_URL}/gallery_uploads/${file.filename}`;
+
+    db.run(
+      'INSERT INTO gallery_photos (photoId, filename, photoURL, caption, uploadedAt) VALUES (?, ?, ?, ?, ?)',
+      [photoId, file.originalname, photoURL, caption, uploadedAt],
+      (err) => {
+        if (err) {
+          console.error('Gallery insert error:', err.message);
+        } else {
+          inserted.push({ photoId, filename: file.originalname, photoURL, uploadedAt });
+        }
+        pending--;
+        if (pending === 0) {
+          res.json({ uploaded: inserted.length, photos: inserted });
+        }
+      }
+    );
+  });
+});
+
+// DELETE a single gallery photo
+app.delete('/api/gallery/:id', (req, res) => {
+  const { id } = req.params;
+
+  db.get('SELECT * FROM gallery_photos WHERE photoId = ?', [id], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!row) return res.status(404).json({ error: 'Foto non trovata' });
+
+    // Remove file from disk
+    const filePath = path.resolve(galleryDir, path.basename(row.photoURL));
+    fs.unlink(filePath, (unlinkErr) => {
+      if (unlinkErr) console.warn('Could not delete file:', unlinkErr.message);
+    });
+
+    db.run('DELETE FROM gallery_photos WHERE photoId = ?', [id], function (err2) {
+      if (err2) return res.status(500).json({ error: err2.message });
+      res.json({ success: true });
+    });
+  });
+});
+
 app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
+  console.log(`Backend server running on port ${PORT}`);
+  console.log(`Server URL: ${SERVER_URL}`);
 });

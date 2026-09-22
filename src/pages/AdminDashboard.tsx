@@ -25,7 +25,7 @@ export default function AdminDashboard() {
       setEvents(parsedData);
 
       // Fetch client info for each event
-      const clientIds = new Set(parsedData.map((e: any) => e.clientId));
+      const clientIds = new Set<string>(parsedData.map((e: any) => e.clientId));
       const clientMap: { [key: string]: UserProfile } = {};
       
       for (const clientId of clientIds) {

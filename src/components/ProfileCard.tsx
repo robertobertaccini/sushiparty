@@ -98,7 +98,7 @@ export default function ProfileCard({ profile, onProfileUpdate }: ProfileCardPro
 
     try {
       await api.put(`/users/${profile.uid}`, { defaultCompensation: compensation });
-      onProfileUpdate({ ...profile, defaultCompensation: compensation });
+      onProfileUpdate({ ...profile, defaultCompensation: compensation as number });
     } catch (err) {
       console.error('Failed to save compensation', err);
       alert('Unable to save compensation');

@@ -1,0 +1,10 @@
+# Elastic Beanstalk ignora questi file durante il deploy
+# (equivalente al .gitignore ma specifico per EB)
+
+node_modules/
+database/
+uploads/
+*.log
+.tmp_check_schema.js
+run_seed.js
+seed_availability.js

@@ -4,10 +4,9 @@ import { ChefHat, ShoppingBag, Home as HomeIcon, Calendar, X } from 'lucide-reac
 import LocationDropdown from '../components/LocationDropdown';
 import PublicCalendar from '../components/PublicCalendar';
 import { useTranslation } from 'react-i18next';
-import LanguageSelector from '../components/LanguageSelector';
 
 export default function Landing() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [selectedCity, setSelectedCity] = useState('');
 

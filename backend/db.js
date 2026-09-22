@@ -78,13 +78,22 @@ export function initDb() {
           maxParticipants INTEGER DEFAULT 20,
           reservationDelayDays INTEGER DEFAULT 1
         )
+      `);
+
+      db.run(`
+        CREATE TABLE IF NOT EXISTS gallery_photos (
+          photoId TEXT PRIMARY KEY,
+          filename TEXT,
+          photoURL TEXT,
+          caption TEXT,
+          uploadedAt TEXT
+        )
       `, (err) => {
         if (err) reject(err);
         else {
           db.run('INSERT OR IGNORE INTO settings (id, minParticipants, maxParticipants, reservationDelayDays) VALUES (1, 2, 20, 1)', (errInsert) => {
             if (errInsert) console.error('Failed to insert default settings:', errInsert.message);
           });
-          // Ensure the users table has the compensation column if this is an older DB
           // Ensure the users table has the compensation column if this is an older DB
           db.all(`PRAGMA table_info(users)`, (err2, columns) => {
             if (err2) {
