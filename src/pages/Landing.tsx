@@ -11,13 +11,13 @@ export default function Landing() {
   const [selectedCity, setSelectedCity] = useState('');
 
   const sushiGallery = [
-    { name: "Temari Sushi", image: "/gallery/100-2000x1331-800x532.jpg" },
-    { name: "Maki Sushi", image: "/gallery/100-1-2000x1500-800x600.jpg" },
-    { name: "La Barca di Uramaki", image: "/gallery/2016-03-08-21-2000x1123-800x449.jpg" },
-    { name: "Mr.Kappa Maki Sushi (VEG)", image: "/gallery/cimg0041-2000x1500-800x600.jpg" },
-    { name: "Rainbow", image: "/gallery/12923109-10153511328643263-5362409893552790794-n-2000x2666-800x1066.jpg" },
-    { name: "Oshi Sushi Unagi", image: "/gallery/wp-20160324-2000x3560-800x1424.jpg" },
-    { name: "Onigiri", image: "/gallery/img-20150511-wa0001-2000x1500-800x600.jpg" }
+    { name: "Temari Sushi", image: `${import.meta.env.BASE_URL}gallery/100-2000x1331-800x532.jpg` },
+    { name: "Maki Sushi", image: `${import.meta.env.BASE_URL}gallery/100-1-2000x1500-800x600.jpg` },
+    { name: "La Barca di Uramaki", image: `${import.meta.env.BASE_URL}gallery/2016-03-08-21-2000x1123-800x449.jpg` },
+    { name: "Mr.Kappa Maki Sushi (VEG)", image: `${import.meta.env.BASE_URL}gallery/cimg0041-2000x1500-800x600.jpg` },
+    { name: "Rainbow", image: `${import.meta.env.BASE_URL}gallery/12923109-10153511328643263-5362409893552790794-n-2000x2666-800x1066.jpg` },
+    { name: "Oshi Sushi Unagi", image: `${import.meta.env.BASE_URL}gallery/wp-20160324-2000x3560-800x1424.jpg` },
+    { name: "Onigiri", image: `${import.meta.env.BASE_URL}gallery/img-20150511-wa0001-2000x1500-800x600.jpg` }
   ];
 
   const [selectedSushi, setSelectedSushi] = useState(sushiGallery[0]);

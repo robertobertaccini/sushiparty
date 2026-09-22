@@ -8,28 +8,28 @@ const occasionsData: Record<string, { title: string; subtitle: string; desc: str
     subtitle: "Tanti sushi-auguri!",
     desc: "Una bella sorpresa per chi è sushi-addicted.",
     longDesc: "Sorprendi i tuoi amici e rendi il tuo compleanno indimenticabile! Un'esperienza unica in cui festeggiare circondati da riso, pesce fresco e allegria. Crea i tuoi maki preferiti e brinda al tuo giorno speciale con un tocco giapponese. Perfetto per gli amanti del sushi di tutte le età.",
-    image: "/images/events/birthday_sushi.png"
+    image: `${import.meta.env.BASE_URL}images/events/birthday_sushi.png`
   },
   'festa-a-tema': {
     title: "Festa a Tema",
     subtitle: "Dress-code Japan",
     desc: "Condividi la tua passione per il sushi e prova a creare il tuo sushi partendo dalle basi.",
     longDesc: "Immergiti nell'atmosfera del Giappone! Che sia una serata tra amici o un incontro informale, vestitevi a tema e scoprite i segreti della preparazione del sushi. Il nostro SushiMan vi guiderà dai primi passi fino alla creazione di piatti deliziosi in un ambiente divertente e rilassato.",
-    image: "/images/events/theme_party_sushi.png"
+    image: `${import.meta.env.BASE_URL}images/events/theme_party_sushi.png`
   },
   'team-building': {
     title: "Team Building",
     subtitle: "Sushi-cucine da incubo",
     desc: "SushiParty vi catapulta nella catena di produzione del sushi. Quanti pezzi riuscirete a produrre?",
     longDesc: "Invita i tuoi colleghi che amano il sushi a un'appassionante sfida ai fornelli! Il nostro format per le aziende trasforma la cucina in una vera e propria catena di produzione del sushi maki. La collaborazione, la coordinazione e lo spirito di squadra saranno fondamentali per vincere la sfida. Un modo perfetto per consolidare il gruppo e rafforzare le relazioni aziendali in modo gustoso e divertente.",
-    image: "/images/events/team_building_sushi.png"
+    image: `${import.meta.env.BASE_URL}images/events/team_building_sushi.png`
   },
   'sushi-contest': {
     title: "Sushi Contest",
     subtitle: "Mamma guarda cosa ho imparato",
     desc: "Alla fine del corso gli allievi preparano il sushi per i propri amici e parenti.",
     longDesc: "Una vera e propria competizione culinaria amichevole! Dopo aver appreso le tecniche di base dal nostro SushiMan, mettetevi alla prova creando composizioni originali. Chi preparerà il piatto più bello e buono? I vostri amici e parenti faranno da giudici per incoronare il campione della serata.",
-    image: "/images/events/sushi_contest.png"
+    image: `${import.meta.env.BASE_URL}images/events/sushi_contest.png`
   }
 };
 

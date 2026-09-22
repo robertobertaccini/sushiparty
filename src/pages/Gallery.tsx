@@ -44,10 +44,10 @@ export default function Gallery() {
             <div 
               key={idx} 
               className="break-inside-avoid relative group cursor-pointer rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.02]"
-              onClick={() => setSelectedImage(`/gallery/${img}`)}
+              onClick={() => setSelectedImage(`${import.meta.env.BASE_URL}gallery/${img}`)}
             >
               <img 
-                src={`/gallery/${img}`} 
+                src={`${import.meta.env.BASE_URL}gallery/${img}`} 
                 alt={t('gallery.photoAlt', { index: idx + 1 })}
                 className="w-full h-auto object-cover"
                 loading="lazy"
