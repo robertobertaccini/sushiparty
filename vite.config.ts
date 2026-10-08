@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/sushiparty/',
+  base: process.env.VITE_BASE_PATH || (process.env.GITHUB_ACTIONS ? '/sushiparty/' : '/'),
   plugins: [
     react(),
     VitePWA({

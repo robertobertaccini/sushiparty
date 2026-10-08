@@ -1,4 +1,8 @@
-const API_URL = import.meta.env.VITE_API_URL ?? `http://${window.location.hostname}:3001/api`;
+const API_URL = import.meta.env.VITE_API_URL ?? (
+  typeof window !== 'undefined' && window.location.port === '5173'
+    ? `http://${window.location.hostname}:3001/api`
+    : '/api'
+);
 
 export const api = {
   get: async (endpoint: string) => {
